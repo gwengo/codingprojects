@@ -1,0 +1,241 @@
+---
+title: "Pset4"
+author: "Gwen"
+date: "November 30, 2019"
+output: html_document
+---
+
+
+
+
+#### Q1
+
+-- What can you say about these observations?
+Looking at the data lost, we can say these observations are fairly complete and encompassing. 16 were deleted.
+
+```{r}
+
+county <- read.csv("county.csv")
+
+election2016 <- read.csv("/Users/gwengoins/Desktop/election2016.csv")
+
+election2012 <- read.csv("/Users/gwengoins/Desktop/election2012.csv")
+
+##merging
+comb <- merge(county, election2016, by="FIPS")
+total_comb<- merge(comb, election2012, by="FIPS")
+nrow(comb) - nrow(total_combined)
+
+## checking
+summary(county)
+summary(election2012)
+summary(election2016)
+summary(total_comb)
+
+## did lose data?
+# only lost 29 rows 
+
+## listwise deletion
+sum(is.na(total_comb)) # count of missing values
+
+mean(is.na(total_comb)) # proportion missing
+
+total_combined <- na.omit(total_comb) # listwise deletion
+
+
+# did lose data?
+length(na.omit(total_comb)) 
+nrow(total_combined)
+
+# 16 rows lost
+
+
+```                   
+
+
+#### Q2
+
+
+
+```{r}
+# Compute the Republican vote share as a proportion of total votes, in 2012 as well as in 2016.
+
+total_combined$repub_marg2012 <- ((total_combined$votes_dem_12 - total_combined$votes_gop_12)/ total_combined$votes_total_12)
+total_combined$repub_marg2016 <- ((total_combined$votes_dem_16 - total_combined$votes_gop_16)/ total_combined$votes_total_16)
+
+# compute the percent difference in this Republican vote share variable from the 2012 to 2016 election.
+total_combined$repub_diff <- repub_marg2012/repub_marg2016
+
+# Plot the distribution of this percent difference, with a red line at the median.
+plot(density(repub_diff), xlim = c(-4,4), main = "percent difference", pch = 16, col="blue",  ylab = "desnity percent difference")
+abline(v = median(repub_diff), col = "red",)
+legend("topright", legend=c("% diff", "Median"),
+       col=c("blue", "red"), lty = 1:2, cex=0.8)
+
+#subset your data to just the battleground states
+
+Colorado <- subset(total_combined, subset = (as.numeric(FIPS) >= 8000 & as.numeric(FIPS) < 9000))
+
+Florida <- subset(total_combined, subset = (FIPS >= 12000 & FIPS < 13000))
+
+Iowa <- subset(total_combined, subset = (FIPS >= 19000 & FIPS < 20000))
+
+Michigan <- subset(total_combined, subset = (FIPS >= 26000 & FIPS < 27000))
+
+Nevada <- subset(total_combined, subset = (FIPS >= 32000 & FIPS < 33000))
+
+NewHampshire <- subset(total_combined, subset = (FIPS >= 33000 & FIPS < 34000))
+
+NorthCarolina <- subset(total_combined, subset = (FIPS >= 37000 & FIPS < 38000))
+
+Ohio <- subset(total_combined, subset = (FIPS >= 39000 & FIPS < 40000))
+
+Pennsylvania <- subset(total_combined, subset = (FIPS >= 42000 & FIPS < 43000))
+
+Virginia <- subset(total_combined, subset = (FIPS >= 51000 & FIPS < 52000))
+
+Wisconsin <- subset(total_combined, subset = (FIPS >= 55000 & FIPS < 56000))
+
+states <- c(Colorado$repub_diff, Florida$repub_diff, Iowa$repub_diff,  Michigan$repub_diff, Nevada$repub_diff, NewHampshire$repub_diff, NorthCarolina$repub_diff, Ohio$repub_diff, Pennsylvania$repub_diff, Virginia$repub_diff, Wisconsin$repub_diff)
+# Plot the distribution of the same variable in this sample, with a red line at the sample median
+plot(states, type = "l", main = "percent difference", pch = 16, col="blue",  ylab = "percent difference", xlab = "")
+abline(v = median(states), col = "red",)
+legend("topright", legend=c("% diff", "Median"),
+       col=c("blue", "red"), lty = 1:2, cex=0.8)
+
+
+
+```
+
+#### Q3
+
+
+```{r}
+
+
+election2016$percentmargin <- (election2016$votes_gop_16 - election2016$votes_dem_16) / election2016$votes_total_16
+
+## the above is a column I created that showcases how close elections were between each county. Values closer to 0 (either positive or negative) are the closely contested counties 
+
+library(usmap)
+library(ggplot2)
+
+## you need to install these packages before going further 
+
+names(election2016)[3] <- "fips"
+
+plot_usmap(regions = "counties", include = c("AK", "AL", "AR", "AS", "AZ", "CA", "CO", "CT", "DC", "DE", "FL", "GA", "GU", "HI", "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD", "ME", "MI", "MN", "MO", "MP", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV", "NY", "OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UM", "UT", "VA", "VI", "VT", "WA", "WI", "WV", "WY"), data = election2016, values = "percentmargin", color = "black") +
+  labs(subtitle = "based on margin of Rep and Dem votes") +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", name = "percentmargin", label = scales::comma) + 
+  theme(legend.position = "right")
+
+
+```
+  
+
+#### Q4
+
+ My results.
+ 
+ The regression did not give very strong results. The change in Republican vote based on these values does not seem to change much except for unemployment. More unemployed people voted blue in the 2016 election. Otherwise, most others went republican.
+
+```{r} 
+
+# foreign-born
+foreign_born12 <- lm(election2012$votes_gop_12[election2012$state == "CO"] ~ Colorado$pct_for_born15)
+foreign_born16 <- lm(election2016$votes_gop_16[election2016$state == "CO"] ~ Colorado$pct_for_born15)
+
+summary(foreign_born12)$r.squared - summary(foreign_born16)$r.squared
+
+# percent holding a Bachelor’s degree or above
+bach12 <- lm(election2012$votes_gop_12[election2012$state == "CO"] ~ Colorado$pct_bach_deg15)
+bach16 <- lm(election2016$votes_gop_16[election2016$state == "CO"] ~ Colorado$pct_bach_deg15)
+
+summary(bach12)$r.squared - summary(bach16)$r.squared
+
+# percent non-white
+nw12 <- lm(election2012$votes_gop_12[election2012$state == "CO"] ~ Colorado$pct_non_white15)
+nw16 <- lm(election2016$votes_gop_16[election2016$state == "CO"] ~ Colorado$pct_non_white15)
+
+summary(nw12)$r.squared - summary(nw16)$r.squared
+
+# percent unemployed
+
+unempl12 <- lm(election2012$votes_gop_12[election2012$state == "CO"] ~ Colorado$pct_unemp12)
+unempl16 <- lm(election2016$votes_gop_16[election2016$state == "CO"] ~ Colorado$pct_unemp16)
+
+summary(unempl12)$r.squared - summary(unempl16)$r.squared
+
+
+```
+
+
+### Q5
+
+We will now see which counties had the most surprising election results in 2016 given our predictions based on the previous election. To do so, first regress 2012 Republican vote share on percent foreign-born, percent with a Bachelor’s degree or above, percent non-white, and percent unemployed in 2012. For the first three, you can use the variables ending in 15 since these are the most recent available Census estimates, which are averaged over the period 2011-15. Then predict 2016 Republican vote share in each county using the same 2011-15 variables and percent unemployed in 2016. Compute the prediction error, which is the predicted Republican vote share subtracted from the observed value in 2016. Create a county-level map with counties colored in red where the observed value was higher than the prediction and blue otherwise. Use double the absolute value of the prediction error as the intensity of the color (the rgb() alpha parameter). Comment on the results.
+
+
+ Most of the R squared values were close to zero. I believe that unemployment is really only a decent predictor. Additionally. it appears as if level of education is a pretty good predictor of votes. 
+ Additionally, more states voted Republican than predicted as we can see with the majority Red map below.
+
+
+```{r}
+
+# foreign-born
+foreign_born12 <- lm(election2012$votes_gop_12[election2012$state == "CO"] ~ Colorado$pct_for_born15)
+foreign_born16 <- lm(election2016$votes_gop_16[election2016$state == "CO"] ~ Colorado$pct_for_born15)
+
+summary(foreign_born12)$r.squared - summary(foreign_born16)$r.squared
+
+# percent holding a Bachelor’s degree or above
+bach12 <- lm(election2012$votes_gop_12[election2012$state == "CO"] ~ Colorado$pct_bach_deg15)
+bach16 <- lm(election2016$votes_gop_16[election2016$state == "CO"] ~ Colorado$pct_bach_deg15)
+
+summary(bach12)$r.squared - summary(bach16)$r.squared
+
+# percent non-white
+nw12 <- lm(election2012$votes_gop_12[election2012$state == "CO"] ~ Colorado$pct_non_white15)
+nw16 <- lm(election2016$votes_gop_16[election2016$state == "CO"] ~ Colorado$pct_non_white15)
+
+summary(nw12)$r.squared - summary(nw16)$r.squared
+
+# percent unemployed
+
+unempl12 <- lm(election2012$votes_gop_12[election2012$state == "CO"] ~ Colorado$pct_unemp12)
+unempl16 <- lm(election2016$votes_gop_16[election2016$state == "CO"] ~ Colorado$pct_unemp16)
+
+summary(unempl12)$r.squared - summary(unempl16)$r.squared
+
+# the plot
+
+plot_usmap(regions = "counties", include = c("AK", "AL", "AR", "AS", "AZ", "CA", "CO", "CT", "DC", "DE", "FL", "GA", "GU", "HI", "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD", "ME", "MI", "MN", "MO", "MP", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV", "NY", "OH", "OK", "OR", "PA", "PR", "RI", "SC", "SD", "TN", "TX", "UM", "UT", "VA", "VI", "VT", "WA", "WI", "WV", "WY"), data = election2016, values = "percentmargin", color = "black") +
+  labs(subtitle = "based on margin of Rep and Dem votes") +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", name = "percentmargin", label = scales::comma) + 
+  theme(legend.position = "right")
+
+
+```
+
+
+### Q6
+
+Subset the data to the counties with the largest overpredictions and underpredictions of Republican vote share based on the last question (take the top and bottom quantiles of prediction error). 2 Create some histograms using these subsets, with black lines at the medians in the subset and red lines at the medians from the full data. Are the counties that defied our expectations unusual in any interesting ways?
+
+The counties that defied our expectations are unusual in that many of the histograms are skewed to the right. That implies interesting things about the counties, that when they did vote republican or not, it was by a lot more than the predictions.
+```{r}
+
+overpredictions <- subset(election2016, election2016$percentmargin <= quantile(election2016$percentmargin, 0.80))
+underpredictions <- subset(election2016, election2016$percentmargin <= quantile(election2016$percentmargin, 0.20))
+
+# over pred
+hist(overpredictions$percentmargin, col = "green")
+abline(v = 0.0, lwd = 2, col = "black")
+abline(v = median(election2016$percentmargin), col = "red", lwd = 4)
+
+# under pred
+hist(underpredictions$percentmargin, col = "green")
+abline(v = -.4, lwd = 2, col = "black")
+abline(v = -.2, col = "red", lwd = 4)
+
+```
+
