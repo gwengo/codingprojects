@@ -1,0 +1,411 @@
+---
+title: "Group 1 Final Project"
+author: "Group 1"
+date: "November 30, 2019"
+output: html_document
+---
+
+## Preface
+
+Before doing my analysis, I first had to figure out what the swing states are. According to POLITICO (https://www.politico.com/blogs/swing-states-2016-election/2016/06/what-are-the-swing-states-in-2016-list-224327), this is what I found: 
+
+"POLITICO has identified 11 states where the 2016 election will be won and lost: Colorado, Florida, Iowa, Michigan, Nevada, New Hampshire, North Carolina, Ohio, Pennsylvania, Virginia and Wisconsin."
+
+These will be the states I will look at for my analysis. Since I am using the county.csv dataframe, and the dataframe does not list states, I had to rely on the FIPS codes for figuring out the states. I used this website to help me in this: https://www.mcc.co.mercer.pa.us/dps/state_fips_code_listing.htm
+
+Based on this guide and the FIPS codes, I was able to subset the data by the swing states and then run my analyses from there. 
+
+Additionally, we need to make the assumption that the factors present in 2016 will remain constant (or at least relatively so) in the upcoming 2020 election. After making this assumotion, we can then analyze and draw conclusions from the 2016 election data and apply them to the upcoming 2020 election. 
+
+
+### Subsetting into swing states 
+
+The swing states are Colorado, Florida, Iowa, Michigan, Nevada, New Hampshire, North Carolina, Ohio, Pennsylvania, Virginia and Wisconsin. 
+
+
+#### Swing states Code
+
+```{r}
+library(readr)
+county <- read_csv("/Users/ancher/Downloads/county.csv")
+## View(county)
+
+
+Colorado <- subset(county, subset = (as.numeric(FIPS) >= 8000 & as.numeric(FIPS) < 9000))
+
+Florida <- subset(county, subset = (FIPS >= 12000 & FIPS < 13000))
+
+Iowa <- subset(county, subset = (FIPS >= 19000 & FIPS < 20000))
+
+Michigan <- subset(county, subset = (FIPS >= 26000 & FIPS < 27000))
+
+Nevada <- subset(county, subset = (FIPS >= 32000 & FIPS < 33000))
+
+NewHampshire <- subset(county, subset = (FIPS >= 33000 & FIPS < 34000))
+
+NorthCarolina <- subset(county, subset = (FIPS >= 37000 & FIPS < 38000))
+
+Ohio <- subset(county, subset = (FIPS >= 39000 & FIPS < 40000))
+
+Pennsylvania <- subset(county, subset = (FIPS >= 42000 & FIPS < 43000))
+
+Virginia <- subset(county, subset = (FIPS >= 51000 & FIPS < 52000))
+
+Wisconsin <- subset(county, subset = (FIPS >= 55000 & FIPS < 56000))
+
+```                   
+
+
+### Unemployment 
+
+This is where I will see how unemployment may impact the votes cast for the Reupublican and Democratic Parties within each swing state. I only did the code for Republican votes in 2016 because we decided to work for President Trump's election.  
+
+
+#### Unemployment Code 
+
+```{r}
+
+election2016 <- read_csv("/Users/ancher/Downloads/election2016.csv")
+
+## View(election2016)
+
+
+unempcol16 <- lm(election2016$votes_gop_16[election2016$state == "CO"] ~ Colorado$pct_unemp16)
+unempcol16
+summary(unempcol16)$r.squared
+
+unempflo16 <- lm(election2016$votes_gop_16[election2016$state == "FL"] ~ Florida$pct_unemp16)
+unempflo16
+summary(unempflo16)$r.squared
+
+unempiow16 <- lm(election2016$votes_gop_16[election2016$state == "IA"] ~ Iowa$pct_unemp16)
+unempiow16
+summary(unempiow16)$r.squared
+
+unempmich16 <- lm(election2016$votes_gop_16[election2016$state == "MI"] ~ Michigan$pct_unemp16)
+unempmich16
+summary(unempmich16)$r.squared
+
+unempnev16 <- lm(election2016$votes_gop_16[election2016$state == "NV"] ~ Nevada$pct_unemp16)
+unempnev16
+summary(unempnev16)$r.squared
+
+unempnewhamp16 <- lm(election2016$votes_gop_16[election2016$state == "NH"] ~ NewHampshire$pct_unemp16)
+unempnewhamp16
+summary(unempnewhamp16)$r.squared
+
+unempnorthcaro16 <- lm(election2016$votes_gop_16[election2016$state == "NC"] ~ NorthCarolina$pct_unemp16)
+unempnorthcaro16
+summary(unempnorthcaro16)$r.squared
+
+unempohio16 <- lm(election2016$votes_gop_16[election2016$state == "OH"] ~ Ohio$pct_unemp16)
+unempohio16
+summary(unempohio16)$r.squared
+
+unemppenn16 <- lm(election2016$votes_gop_16[election2016$state == "PA"] ~ Pennsylvania$pct_unemp16)
+unemppenn16
+summary(unemppenn16)$r.squared
+
+unempvirginia16 <- lm(election2016$votes_gop_16[election2016$state == "VA"] ~ Virginia$pct_unemp16[Virginia$FIPS != 51515])
+unempvirginia16
+summary(unempvirginia16)$r.squared
+
+## originally, the lengths differed, with the Virginia subset having 134 and the elections.csv having 133
+## in the county dataframe (from where the virginia subset was taken), I discovered that there was a counry that did not correspond to the elections.csv, and that county has a FIPS of 51515, and it was all missing data too 
+## this is why I ignored that specifc FIPS county in my code
+
+unempwis16 <- lm(election2016$votes_gop_16[election2016$state == "WI"] ~ Wisconsin$pct_unemp16)
+unempwis16
+summary(unempwis16)$r.squared
+
+```
+
+#### Unemployment Analysis
+
+State           R-Squared
+
+Colorado:       0.0004590682
+Florida:        0.03347519
+Iowa:           0.001211571
+Michigan:       0.01443305
+Nevada:         0.03446108
+New Hampshire:  0.06773221
+North Carolina: 0.08255213
+Ohio:           0.0375160
+Pennsylvania:   0.1342626
+Virginia:       0.04996006
+Wisconsin:      0.02501759
+
+Based off this chart, I believe that unemployment is really only a decent predictor in Pennsylvannia, and arguably in North Carolina and maybe New Hampshire. Otherwise, the R-Squared values are very low and perhaps negligible in prediciting Republican votes in 2016. 
+
+
+### Education 
+
+In order to observe how education impacts voting, I had to use the 2016 voting dataset, since the education variable includes those with a bachelor's degree or higher from the years 2011-2015. This works well with our use of the 2016 election data for the group project. 
+
+
+#### Education Code 
+
+```{r}
+
+## View(election2016)
+
+bachcol16 <- lm(election2016$votes_gop_16[election2016$state == "CO"] ~ Colorado$pct_bach_deg15)
+bachcol16
+summary(bachcol16)$r.squared
+
+bachflo16 <- lm(election2016$votes_gop_16[election2016$state == "FL"] ~ Florida$pct_bach_deg15)
+bachflo16
+summary(bachflo16)$r.squared
+
+bachiow16 <- lm(election2016$votes_gop_16[election2016$state == "IA"] ~ Iowa$pct_bach_deg15)
+bachiow16
+summary(bachiow16)$r.squared
+
+bachmich16 <- lm(election2016$votes_gop_16[election2016$state == "MI"] ~ Michigan$pct_bach_deg15)
+bachmich16
+summary(bachmich16)$r.squared
+
+bachnev16 <- lm(election2016$votes_gop_16[election2016$state == "NV"] ~ Nevada$pct_bach_deg15)
+bachnev16
+summary(bachnev16)$r.squared
+
+bachnewhamp16 <- lm(election2016$votes_gop_16[election2016$state == "NH"] ~ NewHampshire$pct_bach_deg15)
+bachnewhamp16
+summary(bachnewhamp16)$r.squared
+
+bachnorthcaro16 <- lm(election2016$votes_gop_16[election2016$state == "NC"] ~ NorthCarolina$pct_bach_deg15)
+bachnorthcaro16
+summary(bachnorthcaro16)$r.squared
+
+bachohio16 <- lm(election2016$votes_gop_16[election2016$state == "OH"] ~ Ohio$pct_bach_deg15)
+bachohio16
+summary(bachohio16)$r.squared
+
+bachpenn16 <- lm(election2016$votes_gop_16[election2016$state == "PA"] ~ Pennsylvania$pct_bach_deg15)
+bachpenn16
+summary(bachpenn16)$r.squared
+
+bachvirginia16 <- lm(election2016$votes_gop_16[election2016$state == "VA"] ~ Virginia$pct_bach_deg15[Virginia$FIPS != 51515])
+bachvirginia16
+summary(bachvirginia16)$r.squared
+
+## originally, the lengths differed, with the Virginia subset having 134 and the elections.csv having 133
+## in the county dataframe (from where the virginia subset was taken), I discovered that there was a counry that did not correspond to the elections.csv, and that county has a FIPS of 51515, and it was all missing data too 
+## this is why I ignored that specifc FIPS county in my code
+
+bachwis16 <- lm(election2016$votes_gop_16[election2016$state == "WI"] ~ Wisconsin$pct_bach_deg15)
+bachwis16
+summary(bachwis16)$r.squared
+
+```
+
+#### Education Analysis
+
+State           R-Squared
+
+Colorado:       0.07066017
+Florida:        0.3150263
+Iowa:           0.313915
+Michigan:       0.1825958
+Nevada:         0.07542501
+New Hampshire:  0.06773221
+North Carolina: 0.3276402
+Ohio:           0.4386245
+Pennsylvania:   0.5145257
+Virginia:       0.00972256
+Wisconsin:      0.347349
+
+Based off this chart, it appears as if level of education is a pretty good predictor of votes in our battleground states. The only state in which it is not a great predictoris Virginia, and even the other three states in which this variable is not comparatively a great predictor-- Colorado, Nevada, and New Hampshire-- the R-Squared values are not really neglibible, as they are 0.07066017, 0.07542501, 0.06773221, respectively. 
+
+Before our final analysis, it will be important to observe the actual coefficients, however, especially regarding their sign (whether they are positive or negative). For example, if education is a great predictor but has negative coefficient within battleground states, then our "campaign efforts" should be devoted to lower-educated individuals. I have not looked this far into the data yet, but it is important! 
+
+
+### Mapping the Data 
+
+#### Battleground Counties Code 
+
+```{r} 
+
+election2016$percentmargin <- (election2016$votes_gop_16 - election2016$votes_dem_16) / election2016$votes_total_16
+
+## the above is a column I created that showcases how close elections were between each county. Values closer to 0 (either positive or negative) are the closely contested counties 
+
+library(usmap)
+library(ggplot2)
+
+## you need to install these packages before going further 
+
+names(election2016)[3] <- "fips"
+
+## the above line of code is ABSOLUTELY ESSENTIAL. In order for the below code to map data onto counties (or states), the column in any dataset MUST be in lowercase letters and be "fips" or "state", depending on which you are interested in 
+
+## specifically, the above line of code changed the column title "FIPS" to "fips"
+
+
+plot_usmap(regions = "counties", include = c("CO", "FL", "IA", "MI", "NV", "NH", "NC", "OH", "PA", "VA", "WI"), data = election2016, values = "percentmargin", color = "black") +
+  labs(title = "Swing State battleground counties", subtitle = "based on margin of Rep and Dem votes") +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", name = "percentmargin", label = scales::comma) + 
+  theme(legend.position = "right")
+
+plot_usmap(regions = "counties", include = c("PA"), data = election2016, values = "percentmargin", color = "black") +
+  labs(title = "Swing State battleground counties in PA", subtitle = "based on margin of Rep and Dem votes") +
+  scale_fill_gradient2(low = "blue", mid = "white", high = "red", name = "percentmargin", label = scales::comma) + 
+  theme(legend.position = "right")
+
+```
+  
+
+#### Wisconsin Map Code
+
+
+```{r} 
+
+## this code is the same as the above but with one difference-- the coding of how color is represented is different
+## this format would be more useful for analyses that incoporate variables that range from 0 to n, rather than -n to -n
+## for example, this code is useful for analyzing ethnic proportions, educational proportions, etc within counties 
+
+library(usmap)
+library(ggplot2)
+
+plot_usmap(regions = "counties", include = c("WI"), data = election2016, values = "percentmargin", color = "black") +
+  labs(title = "Wisconsin") +
+  scale_fill_continuous(low = "white", high = "blue", name = "percentmargin", label = scales::comma) + 
+  theme(legend.position = "right")
+
+```
+
+## Finding regressors
+
+### Here we are running the regression to determine what factors are important to each state in terms of predicting the election result. We apply a 10% threshold for r^2 here to rule out ineffective predictors. We chose factors such as age, diversity, educaiton, poverty, foreign born citizens and etc and try to find variables that are important to each state.
+```{r}
+combinedSwingstate <- read_csv("/Users/ancher/Downloads/combinedSwingstate.csv")
+
+swingstatename <- unique(combinedSwingstate$STNAME)
+statecoef2016 <- rep(NA,11)
+
+for (i in 1:11){
+  a <- subset(combinedSwingstate, combinedSwingstate$STNAME == swingstatename[i])
+  statecoef2016[i] <- summary(lm(a$repratio~a$medAge16))$r.squared
+}
+names(statecoef2016) <- swingstatename
+"age
+"
+statecoef2016
+mean(statecoef2016)
+a <- statecoef2016>0.10
+a
+
+swingstatename <- unique(combinedSwingstate$STNAME)
+statecoef2016 <- rep(NA,11)
+
+for (i in 1:11){
+  a <- subset(combinedSwingstate, combinedSwingstate$STNAME == swingstatename[i])
+  statecoef2016[i] <- summary(lm(a$repratio~a$pct_bach_deg15))$r.squared
+}
+names(statecoef2016) <- swingstatename
+"education
+"
+statecoef2016
+mean(statecoef2016)
+a <- statecoef2016>0.10
+a
+
+statecoef2016 <- rep(NA,11)
+
+for (i in 1:11){
+  a <- subset(combinedSwingstate, combinedSwingstate$STNAME == swingstatename[i])
+  statecoef2016[i] <- summary(lm(a$repratio~ a$pct_non_white15 ))$r.squared
+}
+names(statecoef2016) <- swingstatename
+"nonwhite
+"
+statecoef2016
+mean(statecoef2016)
+a <- statecoef2016>0.10
+a
+
+statecoef2016 <- rep(NA,11)
+
+for (i in 1:11){
+  a <- subset(combinedSwingstate, combinedSwingstate$STNAME == swingstatename[i])
+  statecoef2016[i] <- summary(lm(a$repratio~ a$pct_for_born15 ))$r.squared
+}
+names(statecoef2016) <- swingstatename
+"foreign born
+"
+statecoef2016
+mean(statecoef2016)
+a <- statecoef2016>0.10
+a
+
+for (i in 1:11){
+  a <- subset(combinedSwingstate, combinedSwingstate$STNAME == swingstatename[i])
+  statecoef2016[i] <- summary(lm(a$repratio~ a$pct_unemp16 ))$r.squared
+}
+names(statecoef2016) <- swingstatename
+"Unemployment
+"
+statecoef2016
+mean(statecoef2016)
+a <- statecoef2016>0.10
+a
+
+for (i in 1:11){
+  a <- subset(combinedSwingstate, combinedSwingstate$STNAME == swingstatename[i])
+  statecoef2016[i] <- summary(lm(a$repratio~ a$elec16 ))$r.squared
+}
+names(statecoef2016) <- swingstatename
+"Migration
+"
+statecoef2016
+mean(statecoef2016)
+a <- statecoef2016>0.10
+a
+
+
+for (i in 1:11){
+  a <- subset(combinedSwingstate, combinedSwingstate$STNAME == swingstatename[i])
+  statecoef2016[i] <- summary(lm(a$repratio ~ a$`Poverty` ))$r.squared
+}
+names(statecoef2016) <- swingstatename
+"Poverty\n"
+statecoef2016
+mean(statecoef2016)
+a <- statecoef2016>0.10
+a
+```
+## Regression results
+### Here we are actually running the regression and show the r^2 to see how good our regressions are. 
+```{r}
+
+regVA <- lm(combinedSwingstate$repratio[combinedSwingstate$STNAME == "Virginia"] ~ combinedSwingstate$medAge16[combinedSwingstate$STNAME == "Virginia"] + combinedSwingstate$pct_bach_deg15[combinedSwingstate$STNAME == "Virginia"])
+summary(regVA)$r.squared
+
+regOH <- lm(combinedSwingstate$repratio[combinedSwingstate$STNAME == "Ohio"] ~ combinedSwingstate$pct_non_white15[combinedSwingstate$STNAME == "Ohio"]+ combinedSwingstate$pct_bach_deg15[combinedSwingstate$STNAME == "Ohio"] + combinedSwingstate$pct_for_born15[combinedSwingstate$STNAME == "Ohio"] + combinedSwingstate$elec16[combinedSwingstate$STNAME == "Ohio"])
+summary(regOH)$r.squared
+
+regIA <- lm(combinedSwingstate$repratio[combinedSwingstate$STNAME == "Iowa"] ~ combinedSwingstate$pct_non_white15[combinedSwingstate$STNAME == "Iowa"] + combinedSwingstate$elec16[combinedSwingstate$STNAME == "Iowa"] + combinedSwingstate$pct_bach_deg15[combinedSwingstate$STNAME == "Iowa"] + combinedSwingstate$medAge16[combinedSwingstate$STNAME == "Iowa"])
+summary(regIA)$r.squared
+
+
+regNC <- lm(combinedSwingstate$repratio[combinedSwingstate$STNAME == "North Carolina"] ~ combinedSwingstate$elec16[combinedSwingstate$STNAME == "North Carolina"] + combinedSwingstate$pct_bach_deg15[combinedSwingstate$STNAME == "North Carolina"] + combinedSwingstate$medAge16[combinedSwingstate$STNAME == "North Carolina"] + combinedSwingstate$pct_for_born15[combinedSwingstate$STNAME == "North Carolina"])
+summary(regNC)$r.squared
+
+
+regNH <- lm(combinedSwingstate$repratio[combinedSwingstate$STNAME == "New Hampshire"] ~ combinedSwingstate$pct_non_white15[combinedSwingstate$STNAME == "New Hampshire"] + combinedSwingstate$pct_for_born15[combinedSwingstate$STNAME == "New Hampshire"] + combinedSwingstate$medAge16[combinedSwingstate$STNAME == "New Hampshire"])
+summary(regNH)$r.squared
+
+regFL <- lm(combinedSwingstate$repratio[combinedSwingstate$STNAME == "Florida"]~ combinedSwingstate$elec16[combinedSwingstate$STNAME == "Florida"] + combinedSwingstate$pct_bach_deg15[combinedSwingstate$STNAME == "Florida"] + combinedSwingstate$pct_for_born15[combinedSwingstate$STNAME == "Florida"] )
+summary(regFL)$r.squared
+
+regMI <- lm(combinedSwingstate$repratio[combinedSwingstate$STNAME == "Michigan"] ~ combinedSwingstate$pct_non_white15[combinedSwingstate$STNAME == "Michigan"] + combinedSwingstate$pct_for_born15[combinedSwingstate$STNAME == "Michigan"] + combinedSwingstate$pct_bach_deg15[combinedSwingstate$STNAME == "Michigan"] + combinedSwingstate$medAge16[combinedSwingstate$STNAME == "Michigan"])
+summary(regMI)$r.squared
+
+regPA <- lm(combinedSwingstate$repratio[combinedSwingstate$STNAME == "Pennsylvania"]~ combinedSwingstate$pct_non_white15[combinedSwingstate$STNAME == "Pennsylvania"] + combinedSwingstate$elec16[combinedSwingstate$STNAME == "Pennsylvania"] + combinedSwingstate$pct_bach_deg15[combinedSwingstate$STNAME == "Pennsylvania"] + combinedSwingstate$medAge16[combinedSwingstate$STNAME == "Pennsylvania"] + combinedSwingstate$pct_for_born15[combinedSwingstate$STNAME == "Pennsylvania"] + combinedSwingstate$pct_unemp16[combinedSwingstate$STNAME == "Pennsylvania"])
+summary(regPA)$r.squared
+
+regWI <- lm(combinedSwingstate$repratio[combinedSwingstate$STNAME == "Wisconsin"]~combinedSwingstate$pct_bach_deg15[combinedSwingstate$STNAME == "Wisconsin"] + combinedSwingstate$medAge16[combinedSwingstate$STNAME == "Wisconsin"] + combinedSwingstate$pct_for_born15[combinedSwingstate$STNAME == "Wisconsin"])
+summary(regWI)$r.squared
+
+```

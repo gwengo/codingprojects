@@ -1,0 +1,742 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head></head><body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="fluid-row">
+
+
+
+<h1 class="title toc-ignore">Group 1 Final Project</h1>
+<h4 class="author">Group 1</h4>
+<h4 class="date">November 30, 2019</h4>
+
+</div>
+
+
+<div class="section level2">
+<h2>Preface</h2>
+<p>Before doing my analysis, I first had to figure out what the swing states are. According to POLITICO (<a rel="noopener" href="https://www.politico.com/blogs/swing-states-2016-election/2016/06/what-are-the-swing-states-in-2016-list-224327" class="uri">https://www.politico.com/blogs/swing-states-2016-election/2016/06/what-are-the-swing-states-in-2016-list-224327</a>), this is what I found:</p>
+<p>“POLITICO has identified 11 states where the 2016 election will be won and lost: Colorado, Florida, Iowa, Michigan, Nevada, New Hampshire, North Carolina, Ohio, Pennsylvania, Virginia and Wisconsin.”</p>
+<p>These will be the states I will look at for my analysis. Since I am using the county.csv dataframe, and the dataframe does not list states, I had to rely on the FIPS codes for figuring out the states. I used this website to help me in this: <a rel="noopener" href="https://www.mcc.co.mercer.pa.us/dps/state_fips_code_listing.htm" class="uri">https://www.mcc.co.mercer.pa.us/dps/state_fips_code_listing.htm</a></p>
+<p>Based on this guide and the FIPS codes, I was able to subset the data by the swing states and then run my analyses from there.</p>
+<p>Additionally, we need to make the assumption that the factors present in 2016 will remain constant (or at least relatively so) in the upcoming 2020 election. After making this assumotion, we can then analyze and draw conclusions from the 2016 election data and apply them to the upcoming 2020 election.</p>
+<div class="section level3">
+<h3>Subsetting into swing states</h3>
+<p>The swing states are Colorado, Florida, Iowa, Michigan, Nevada, New Hampshire, North Carolina, Ohio, Pennsylvania, Virginia and Wisconsin.</p>
+<div class="section level4">
+<h4>Swing states Code</h4>
+<pre class="r"><code>library(readr)
+county &lt;- read_csv(&quot;/Users/ancher/Downloads/county.csv&quot;)</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   FIPS = col_character(),
+##   pct_for_born15 = col_double(),
+##   pct_bach_deg15 = col_double(),
+##   pct_non_white15 = col_double(),
+##   pct_unemp12 = col_double(),
+##   pct_unemp16 = col_double()
+## )</code></pre>
+<pre class="r"><code>## View(county)
+
+
+Colorado &lt;- subset(county, subset = (as.numeric(FIPS) &gt;= 8000 &amp; as.numeric(FIPS) &lt; 9000))
+
+Florida &lt;- subset(county, subset = (FIPS &gt;= 12000 &amp; FIPS &lt; 13000))
+
+Iowa &lt;- subset(county, subset = (FIPS &gt;= 19000 &amp; FIPS &lt; 20000))
+
+Michigan &lt;- subset(county, subset = (FIPS &gt;= 26000 &amp; FIPS &lt; 27000))
+
+Nevada &lt;- subset(county, subset = (FIPS &gt;= 32000 &amp; FIPS &lt; 33000))
+
+NewHampshire &lt;- subset(county, subset = (FIPS &gt;= 33000 &amp; FIPS &lt; 34000))
+
+NorthCarolina &lt;- subset(county, subset = (FIPS &gt;= 37000 &amp; FIPS &lt; 38000))
+
+Ohio &lt;- subset(county, subset = (FIPS &gt;= 39000 &amp; FIPS &lt; 40000))
+
+Pennsylvania &lt;- subset(county, subset = (FIPS &gt;= 42000 &amp; FIPS &lt; 43000))
+
+Virginia &lt;- subset(county, subset = (FIPS &gt;= 51000 &amp; FIPS &lt; 52000))
+
+Wisconsin &lt;- subset(county, subset = (FIPS &gt;= 55000 &amp; FIPS &lt; 56000))</code></pre>
+</div>
+</div>
+<div class="section level3">
+<h3>Unemployment</h3>
+<p>This is where I will see how unemployment may impact the votes cast for the Reupublican and Democratic Parties within each swing state. I only did the code for Republican votes in 2016 because we decided to work for President Trump’s election.</p>
+<div class="section level4">
+<h4>Unemployment Code</h4>
+<pre class="r"><code>election2016 &lt;- read_csv(&quot;/Users/ancher/Downloads/election2016.csv&quot;)</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   state = col_character(),
+##   county = col_character(),
+##   FIPS = col_double(),
+##   votes_dem_16 = col_double(),
+##   votes_gop_16 = col_double(),
+##   votes_total_16 = col_double()
+## )</code></pre>
+<pre class="r"><code>## View(election2016)
+
+
+unempcol16 &lt;- lm(election2016$votes_gop_16[election2016$state == &quot;CO&quot;] ~ Colorado$pct_unemp16)
+unempcol16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = election2016$votes_gop_16[election2016$state == 
+##     &quot;CO&quot;] ~ Colorado$pct_unemp16)
+## 
+## Coefficients:
+##          (Intercept)  Colorado$pct_unemp16  
+##              14812.2                 953.1</code></pre>
+<pre class="r"><code>summary(unempcol16)$r.squared</code></pre>
+<pre><code>## [1] 0.0004590682</code></pre>
+<pre class="r"><code>unempflo16 &lt;- lm(election2016$votes_gop_16[election2016$state == &quot;FL&quot;] ~ Florida$pct_unemp16)
+unempflo16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = election2016$votes_gop_16[election2016$state == 
+##     &quot;FL&quot;] ~ Florida$pct_unemp16)
+## 
+## Coefficients:
+##         (Intercept)  Florida$pct_unemp16  
+##              147832               -15197</code></pre>
+<pre class="r"><code>summary(unempflo16)$r.squared</code></pre>
+<pre><code>## [1] 0.03347519</code></pre>
+<pre class="r"><code>unempiow16 &lt;- lm(election2016$votes_gop_16[election2016$state == &quot;IA&quot;] ~ Iowa$pct_unemp16)
+unempiow16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = election2016$votes_gop_16[election2016$state == 
+##     &quot;IA&quot;] ~ Iowa$pct_unemp16)
+## 
+## Coefficients:
+##      (Intercept)  Iowa$pct_unemp16  
+##             6349               503</code></pre>
+<pre class="r"><code>summary(unempiow16)$r.squared</code></pre>
+<pre><code>## [1] 0.001211571</code></pre>
+<pre class="r"><code>unempmich16 &lt;- lm(election2016$votes_gop_16[election2016$state == &quot;MI&quot;] ~ Michigan$pct_unemp16)
+unempmich16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = election2016$votes_gop_16[election2016$state == 
+##     &quot;MI&quot;] ~ Michigan$pct_unemp16)
+## 
+## Coefficients:
+##          (Intercept)  Michigan$pct_unemp16  
+##                55167                 -5738</code></pre>
+<pre class="r"><code>summary(unempmich16)$r.squared</code></pre>
+<pre><code>## [1] 0.01443305</code></pre>
+<pre class="r"><code>unempnev16 &lt;- lm(election2016$votes_gop_16[election2016$state == &quot;NV&quot;] ~ Nevada$pct_unemp16)
+unempnev16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = election2016$votes_gop_16[election2016$state == 
+##     &quot;NV&quot;] ~ Nevada$pct_unemp16)
+## 
+## Coefficients:
+##        (Intercept)  Nevada$pct_unemp16  
+##             122436              -17445</code></pre>
+<pre class="r"><code>summary(unempnev16)$r.squared</code></pre>
+<pre><code>## [1] 0.03446108</code></pre>
+<pre class="r"><code>unempnewhamp16 &lt;- lm(election2016$votes_gop_16[election2016$state == &quot;NH&quot;] ~ NewHampshire$pct_unemp16)
+unempnewhamp16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = election2016$votes_gop_16[election2016$state == 
+##     &quot;NH&quot;] ~ NewHampshire$pct_unemp16)
+## 
+## Coefficients:
+##              (Intercept)  NewHampshire$pct_unemp16  
+##                   -45025                     34611</code></pre>
+<pre class="r"><code>summary(unempnewhamp16)$r.squared</code></pre>
+<pre><code>## [1] 0.06773221</code></pre>
+<pre class="r"><code>unempnorthcaro16 &lt;- lm(election2016$votes_gop_16[election2016$state == &quot;NC&quot;] ~ NorthCarolina$pct_unemp16)
+unempnorthcaro16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = election2016$votes_gop_16[election2016$state == 
+##     &quot;NC&quot;] ~ NorthCarolina$pct_unemp16)
+## 
+## Coefficients:
+##               (Intercept)  NorthCarolina$pct_unemp16  
+##                     55222                      -5942</code></pre>
+<pre class="r"><code>summary(unempnorthcaro16)$r.squared</code></pre>
+<pre><code>## [1] 0.08255213</code></pre>
+<pre class="r"><code>unempohio16 &lt;- lm(election2016$votes_gop_16[election2016$state == &quot;OH&quot;] ~ Ohio$pct_unemp16)
+unempohio16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = election2016$votes_gop_16[election2016$state == 
+##     &quot;OH&quot;] ~ Ohio$pct_unemp16)
+## 
+## Coefficients:
+##      (Intercept)  Ohio$pct_unemp16  
+##            62380             -6287</code></pre>
+<pre class="r"><code>summary(unempohio16)$r.squared</code></pre>
+<pre><code>## [1] 0.03751608</code></pre>
+<pre class="r"><code>unemppenn16 &lt;- lm(election2016$votes_gop_16[election2016$state == &quot;PA&quot;] ~ Pennsylvania$pct_unemp16)
+unemppenn16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = election2016$votes_gop_16[election2016$state == 
+##     &quot;PA&quot;] ~ Pennsylvania$pct_unemp16)
+## 
+## Coefficients:
+##              (Intercept)  Pennsylvania$pct_unemp16  
+##                   150842                    -18890</code></pre>
+<pre class="r"><code>summary(unemppenn16)$r.squared</code></pre>
+<pre><code>## [1] 0.1342626</code></pre>
+<pre class="r"><code>unempvirginia16 &lt;- lm(election2016$votes_gop_16[election2016$state == &quot;VA&quot;] ~ Virginia$pct_unemp16[Virginia$FIPS != 51515])
+unempvirginia16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = election2016$votes_gop_16[election2016$state == 
+##     &quot;VA&quot;] ~ Virginia$pct_unemp16[Virginia$FIPS != 51515])
+## 
+## Coefficients:
+##                                  (Intercept)  
+##                                        -4820  
+## Virginia$pct_unemp16[Virginia$FIPS != 51515]  
+##                                         3850</code></pre>
+<pre class="r"><code>summary(unempvirginia16)$r.squared</code></pre>
+<pre><code>## [1] 0.04996006</code></pre>
+<pre class="r"><code>## originally, the lengths differed, with the Virginia subset having 134 and the elections.csv having 133
+## in the county dataframe (from where the virginia subset was taken), I discovered that there was a counry that did not correspond to the elections.csv, and that county has a FIPS of 51515, and it was all missing data too 
+## this is why I ignored that specifc FIPS county in my code
+
+unempwis16 &lt;- lm(election2016$votes_gop_16[election2016$state == &quot;WI&quot;] ~ Wisconsin$pct_unemp16)
+unempwis16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = election2016$votes_gop_16[election2016$state == 
+##     &quot;WI&quot;] ~ Wisconsin$pct_unemp16)
+## 
+## Coefficients:
+##           (Intercept)  Wisconsin$pct_unemp16  
+##                 38819                  -5304</code></pre>
+<pre class="r"><code>summary(unempwis16)$r.squared</code></pre>
+<pre><code>## [1] 0.02501759</code></pre>
+</div>
+<div class="section level4">
+<h4>Unemployment Analysis</h4>
+<p>State R-Squared</p>
+<p>Colorado: 0.0004590682 Florida: 0.03347519 Iowa: 0.001211571 Michigan: 0.01443305 Nevada: 0.03446108 New Hampshire: 0.06773221 North Carolina: 0.08255213 Ohio: 0.0375160 Pennsylvania: 0.1342626 Virginia: 0.04996006 Wisconsin: 0.02501759</p>
+<p>Based off this chart, I believe that unemployment is really only a decent predictor in Pennsylvannia, and arguably in North Carolina and maybe New Hampshire. Otherwise, the R-Squared values are very low and perhaps negligible in prediciting Republican votes in 2016.</p>
+</div>
+</div>
+<div class="section level3">
+<h3>Education</h3>
+<p>In order to observe how education impacts voting, I had to use the 2016 voting dataset, since the education variable includes those with a bachelor’s degree or higher from the years 2011-2015. This works well with our use of the 2016 election data for the group project.</p>
+<div class="section level4">
+<h4>Education Code</h4>
+<pre class="r"><code>## View(election2016)
+
+bachcol16 &lt;- lm(election2016$votes_gop_16[election2016$state == &quot;CO&quot;] ~ Colorado$pct_bach_deg15)
+bachcol16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = election2016$votes_gop_16[election2016$state == 
+##     &quot;CO&quot;] ~ Colorado$pct_bach_deg15)
+## 
+## Coefficients:
+##             (Intercept)  Colorado$pct_bach_deg15  
+##                 -2773.6                    684.7</code></pre>
+<pre class="r"><code>summary(bachcol16)$r.squared</code></pre>
+<pre><code>## [1] 0.07066017</code></pre>
+<pre class="r"><code>bachflo16 &lt;- lm(election2016$votes_gop_16[election2016$state == &quot;FL&quot;] ~ Florida$pct_bach_deg15)
+bachflo16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = election2016$votes_gop_16[election2016$state == 
+##     &quot;FL&quot;] ~ Florida$pct_bach_deg15)
+## 
+## Coefficients:
+##            (Intercept)  Florida$pct_bach_deg15  
+##                 -30275                    4823</code></pre>
+<pre class="r"><code>summary(bachflo16)$r.squared</code></pre>
+<pre><code>## [1] 0.3150263</code></pre>
+<pre class="r"><code>bachiow16 &lt;- lm(election2016$votes_gop_16[election2016$state == &quot;IA&quot;] ~ Iowa$pct_bach_deg15)
+bachiow16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = election2016$votes_gop_16[election2016$state == 
+##     &quot;IA&quot;] ~ Iowa$pct_bach_deg15)
+## 
+## Coefficients:
+##         (Intercept)  Iowa$pct_bach_deg15  
+##            -11392.4                957.6</code></pre>
+<pre class="r"><code>summary(bachiow16)$r.squared</code></pre>
+<pre><code>## [1] 0.313915</code></pre>
+<pre class="r"><code>bachmich16 &lt;- lm(election2016$votes_gop_16[election2016$state == &quot;MI&quot;] ~ Michigan$pct_bach_deg15)
+bachmich16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = election2016$votes_gop_16[election2016$state == 
+##     &quot;MI&quot;] ~ Michigan$pct_bach_deg15)
+## 
+## Coefficients:
+##             (Intercept)  Michigan$pct_bach_deg15  
+##                  -24170                     2537</code></pre>
+<pre class="r"><code>summary(bachmich16)$r.squared</code></pre>
+<pre><code>## [1] 0.1825958</code></pre>
+<pre class="r"><code>bachnev16 &lt;- lm(election2016$votes_gop_16[election2016$state == &quot;NV&quot;] ~ Nevada$pct_bach_deg15)
+bachnev16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = election2016$votes_gop_16[election2016$state == 
+##     &quot;NV&quot;] ~ Nevada$pct_bach_deg15)
+## 
+## Coefficients:
+##           (Intercept)  Nevada$pct_bach_deg15  
+##                -38539                   3893</code></pre>
+<pre class="r"><code>summary(bachnev16)$r.squared</code></pre>
+<pre><code>## [1] 0.07542501</code></pre>
+<pre class="r"><code>bachnewhamp16 &lt;- lm(election2016$votes_gop_16[election2016$state == &quot;NH&quot;] ~ NewHampshire$pct_bach_deg15)
+bachnewhamp16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = election2016$votes_gop_16[election2016$state == 
+##     &quot;NH&quot;] ~ NewHampshire$pct_bach_deg15)
+## 
+## Coefficients:
+##                 (Intercept)  NewHampshire$pct_bach_deg15  
+##                      -65284                         3132</code></pre>
+<pre class="r"><code>summary(bachnewhamp16)$r.squared</code></pre>
+<pre><code>## [1] 0.3423044</code></pre>
+<pre class="r"><code>bachnorthcaro16 &lt;- lm(election2016$votes_gop_16[election2016$state == &quot;NC&quot;] ~ NorthCarolina$pct_bach_deg15)
+bachnorthcaro16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = election2016$votes_gop_16[election2016$state == 
+##     &quot;NC&quot;] ~ NorthCarolina$pct_bach_deg15)
+## 
+## Coefficients:
+##                  (Intercept)  NorthCarolina$pct_bach_deg15  
+##                       -13164                          1802</code></pre>
+<pre class="r"><code>summary(bachnorthcaro16)$r.squared</code></pre>
+<pre><code>## [1] 0.3276402</code></pre>
+<pre class="r"><code>bachohio16 &lt;- lm(election2016$votes_gop_16[election2016$state == &quot;OH&quot;] ~ Ohio$pct_bach_deg15)
+bachohio16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = election2016$votes_gop_16[election2016$state == 
+##     &quot;OH&quot;] ~ Ohio$pct_bach_deg15)
+## 
+## Coefficients:
+##         (Intercept)  Ohio$pct_bach_deg15  
+##              -25990                 3050</code></pre>
+<pre class="r"><code>summary(bachohio16)$r.squared</code></pre>
+<pre><code>## [1] 0.4386245</code></pre>
+<pre class="r"><code>bachpenn16 &lt;- lm(election2016$votes_gop_16[election2016$state == &quot;PA&quot;] ~ Pennsylvania$pct_bach_deg15)
+bachpenn16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = election2016$votes_gop_16[election2016$state == 
+##     &quot;PA&quot;] ~ Pennsylvania$pct_bach_deg15)
+## 
+## Coefficients:
+##                 (Intercept)  Pennsylvania$pct_bach_deg15  
+##                      -47234                         4190</code></pre>
+<pre class="r"><code>summary(bachpenn16)$r.squared</code></pre>
+<pre><code>## [1] 0.5145257</code></pre>
+<pre class="r"><code>bachvirginia16 &lt;- lm(election2016$votes_gop_16[election2016$state == &quot;VA&quot;] ~ Virginia$pct_bach_deg15[Virginia$FIPS != 51515])
+bachvirginia16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = election2016$votes_gop_16[election2016$state == 
+##     &quot;VA&quot;] ~ Virginia$pct_bach_deg15[Virginia$FIPS != 51515])
+## 
+## Coefficients:
+##                                     (Intercept)  
+##                                         16722.1  
+## Virginia$pct_bach_deg15[Virginia$FIPS != 51515]  
+##                                          -147.7</code></pre>
+<pre class="r"><code>summary(bachvirginia16)$r.squared</code></pre>
+<pre><code>## [1] 0.009722564</code></pre>
+<pre class="r"><code>## originally, the lengths differed, with the Virginia subset having 134 and the elections.csv having 133
+## in the county dataframe (from where the virginia subset was taken), I discovered that there was a counry that did not correspond to the elections.csv, and that county has a FIPS of 51515, and it was all missing data too 
+## this is why I ignored that specifc FIPS county in my code
+
+bachwis16 &lt;- lm(election2016$votes_gop_16[election2016$state == &quot;WI&quot;] ~ Wisconsin$pct_bach_deg15)
+bachwis16</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = election2016$votes_gop_16[election2016$state == 
+##     &quot;WI&quot;] ~ Wisconsin$pct_bach_deg15)
+## 
+## Coefficients:
+##              (Intercept)  Wisconsin$pct_bach_deg15  
+##                   -24058                      2007</code></pre>
+<pre class="r"><code>summary(bachwis16)$r.squared</code></pre>
+<pre><code>## [1] 0.347349</code></pre>
+</div>
+<div class="section level4">
+<h4>Education Analysis</h4>
+<p>State R-Squared</p>
+<p>Colorado: 0.07066017 Florida: 0.3150263 Iowa: 0.313915 Michigan: 0.1825958 Nevada: 0.07542501 New Hampshire: 0.06773221 North Carolina: 0.3276402 Ohio: 0.4386245 Pennsylvania: 0.5145257 Virginia: 0.00972256 Wisconsin: 0.347349</p>
+<p>Based off this chart, it appears as if level of education is a pretty good predictor of votes in our battleground states. The only state in which it is not a great predictoris Virginia, and even the other three states in which this variable is not comparatively a great predictor– Colorado, Nevada, and New Hampshire– the R-Squared values are not really neglibible, as they are 0.07066017, 0.07542501, 0.06773221, respectively.</p>
+<p>Before our final analysis, it will be important to observe the actual coefficients, however, especially regarding their sign (whether they are positive or negative). For example, if education is a great predictor but has negative coefficient within battleground states, then our “campaign efforts” should be devoted to lower-educated individuals. I have not looked this far into the data yet, but it is important!</p>
+</div>
+</div>
+<div class="section level3">
+<h3>Mapping the Data</h3>
+<div class="section level4">
+<h4>Battleground Counties Code</h4>
+<pre class="r"><code>election2016$percentmargin &lt;- (election2016$votes_gop_16 - election2016$votes_dem_16) / election2016$votes_total_16
+
+## the above is a column I created that showcases how close elections were between each county. Values closer to 0 (either positive or negative) are the closely contested counties 
+
+library(usmap)
+library(ggplot2)
+
+## you need to install these packages before going further 
+
+names(election2016)[3] &lt;- &quot;fips&quot;
+
+## the above line of code is ABSOLUTELY ESSENTIAL. In order for the below code to map data onto counties (or states), the column in any dataset MUST be in lowercase letters and be &quot;fips&quot; or &quot;state&quot;, depending on which you are interested in 
+
+## specifically, the above line of code changed the column title &quot;FIPS&quot; to &quot;fips&quot;
+
+
+plot_usmap(regions = &quot;counties&quot;, include = c(&quot;CO&quot;, &quot;FL&quot;, &quot;IA&quot;, &quot;MI&quot;, &quot;NV&quot;, &quot;NH&quot;, &quot;NC&quot;, &quot;OH&quot;, &quot;PA&quot;, &quot;VA&quot;, &quot;WI&quot;), data = election2016, values = &quot;percentmargin&quot;, color = &quot;black&quot;) +
+  labs(title = &quot;Swing State battleground counties&quot;, subtitle = &quot;based on margin of Rep and Dem votes&quot;) +
+  scale_fill_gradient2(low = &quot;blue&quot;, mid = &quot;white&quot;, high = &quot;red&quot;, name = &quot;percentmargin&quot;, label = scales::comma) + 
+  theme(legend.position = &quot;right&quot;)</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre class="r"><code>plot_usmap(regions = &quot;counties&quot;, include = c(&quot;PA&quot;), data = election2016, values = &quot;percentmargin&quot;, color = &quot;black&quot;) +
+  labs(title = &quot;Swing State battleground counties in PA&quot;, subtitle = &quot;based on margin of Rep and Dem votes&quot;) +
+  scale_fill_gradient2(low = &quot;blue&quot;, mid = &quot;white&quot;, high = &quot;red&quot;, name = &quot;percentmargin&quot;, label = scales::comma) + 
+  theme(legend.position = &quot;right&quot;)</code></pre>
+<p><img src="javascript://" width="672"/></p>
+</div>
+<div class="section level4">
+<h4>Wisconsin Map Code</h4>
+<pre class="r"><code>## this code is the same as the above but with one difference-- the coding of how color is represented is different
+## this format would be more useful for analyses that incoporate variables that range from 0 to n, rather than -n to -n
+## for example, this code is useful for analyzing ethnic proportions, educational proportions, etc within counties 
+
+library(usmap)
+library(ggplot2)
+
+plot_usmap(regions = &quot;counties&quot;, include = c(&quot;WI&quot;), data = election2016, values = &quot;percentmargin&quot;, color = &quot;black&quot;) +
+  labs(title = &quot;Wisconsin&quot;) +
+  scale_fill_continuous(low = &quot;white&quot;, high = &quot;blue&quot;, name = &quot;percentmargin&quot;, label = scales::comma) + 
+  theme(legend.position = &quot;right&quot;)</code></pre>
+<p><img src="javascript://" width="672"/></p>
+</div>
+</div>
+</div>
+<div class="section level2">
+<h2>Finding regressors</h2>
+<div class="section level3">
+<h3>Here we are running the regression to determine what factors are important to each state in terms of predicting the election result. We apply a 10% threshold for r^2 here to rule out ineffective predictors. We chose factors such as age, diversity, educaiton, poverty, foreign born citizens and etc and try to find variables that are important to each state.</h3>
+<pre class="r"><code>combinedSwingstate &lt;- read_csv(&quot;/Users/ancher/Downloads/combinedSwingstate.csv&quot;)</code></pre>
+<pre><code>## Parsed with column specification:
+## cols(
+##   .default = col_double(),
+##   STNAME = col_character(),
+##   CTYNAME = col_character(),
+##   State...County.Name = col_character(),
+##   MedianIncome = col_character()
+## )</code></pre>
+<pre><code>## See spec(...) for full column specifications.</code></pre>
+<pre class="r"><code>swingstatename &lt;- unique(combinedSwingstate$STNAME)
+statecoef2016 &lt;- rep(NA,11)
+
+for (i in 1:11){
+  a &lt;- subset(combinedSwingstate, combinedSwingstate$STNAME == swingstatename[i])
+  statecoef2016[i] &lt;- summary(lm(a$repratio~a$medAge16))$r.squared
+}
+names(statecoef2016) &lt;- swingstatename
+&quot;age
+&quot;</code></pre>
+<pre><code>## [1] &quot;age\n&quot;</code></pre>
+<pre class="r"><code>statecoef2016</code></pre>
+<pre><code>##       Colorado        Florida           Iowa       Michigan         Nevada 
+##    0.019450279    0.023007928    0.237578457    0.235963809    0.007369545 
+##  New Hampshire North Carolina           Ohio   Pennsylvania       Virginia 
+##    0.364143637    0.152403096    0.061470603    0.356428874    0.341470051 
+##      Wisconsin 
+##    0.326347797</code></pre>
+<pre class="r"><code>mean(statecoef2016)</code></pre>
+<pre><code>## [1] 0.1932395</code></pre>
+<pre class="r"><code>a &lt;- statecoef2016&gt;0.10
+a</code></pre>
+<pre><code>##       Colorado        Florida           Iowa       Michigan         Nevada 
+##          FALSE          FALSE           TRUE           TRUE          FALSE 
+##  New Hampshire North Carolina           Ohio   Pennsylvania       Virginia 
+##           TRUE           TRUE          FALSE           TRUE           TRUE 
+##      Wisconsin 
+##           TRUE</code></pre>
+<pre class="r"><code>swingstatename &lt;- unique(combinedSwingstate$STNAME)
+statecoef2016 &lt;- rep(NA,11)
+
+for (i in 1:11){
+  a &lt;- subset(combinedSwingstate, combinedSwingstate$STNAME == swingstatename[i])
+  statecoef2016[i] &lt;- summary(lm(a$repratio~a$pct_bach_deg15))$r.squared
+}
+names(statecoef2016) &lt;- swingstatename
+&quot;education
+&quot;</code></pre>
+<pre><code>## [1] &quot;education\n&quot;</code></pre>
+<pre class="r"><code>statecoef2016</code></pre>
+<pre><code>##       Colorado        Florida           Iowa       Michigan         Nevada 
+##      0.5138428      0.3566380      0.3548464      0.5071127      0.2119601 
+##  New Hampshire North Carolina           Ohio   Pennsylvania       Virginia 
+##      0.2172929      0.1002628      0.3865050      0.5858499      0.3185267 
+##      Wisconsin 
+##      0.1966252</code></pre>
+<pre class="r"><code>mean(statecoef2016)</code></pre>
+<pre><code>## [1] 0.3408602</code></pre>
+<pre class="r"><code>a &lt;- statecoef2016&gt;0.10
+a</code></pre>
+<pre><code>##       Colorado        Florida           Iowa       Michigan         Nevada 
+##           TRUE           TRUE           TRUE           TRUE           TRUE 
+##  New Hampshire North Carolina           Ohio   Pennsylvania       Virginia 
+##           TRUE           TRUE           TRUE           TRUE           TRUE 
+##      Wisconsin 
+##           TRUE</code></pre>
+<pre class="r"><code>statecoef2016 &lt;- rep(NA,11)
+
+for (i in 1:11){
+  a &lt;- subset(combinedSwingstate, combinedSwingstate$STNAME == swingstatename[i])
+  statecoef2016[i] &lt;- summary(lm(a$repratio~ a$pct_non_white15 ))$r.squared
+}
+names(statecoef2016) &lt;- swingstatename
+&quot;nonwhite
+&quot;</code></pre>
+<pre><code>## [1] &quot;nonwhite\n&quot;</code></pre>
+<pre class="r"><code>statecoef2016</code></pre>
+<pre><code>##       Colorado        Florida           Iowa       Michigan         Nevada 
+##     0.09181484     0.28767300     0.31673443     0.47150841     0.49747728 
+##  New Hampshire North Carolina           Ohio   Pennsylvania       Virginia 
+##     0.20882322     0.59318933     0.66370743     0.61053724     0.54632331 
+##      Wisconsin 
+##     0.33090638</code></pre>
+<pre class="r"><code>mean(statecoef2016)</code></pre>
+<pre><code>## [1] 0.4198814</code></pre>
+<pre class="r"><code>a &lt;- statecoef2016&gt;0.10
+a</code></pre>
+<pre><code>##       Colorado        Florida           Iowa       Michigan         Nevada 
+##          FALSE           TRUE           TRUE           TRUE           TRUE 
+##  New Hampshire North Carolina           Ohio   Pennsylvania       Virginia 
+##           TRUE           TRUE           TRUE           TRUE           TRUE 
+##      Wisconsin 
+##           TRUE</code></pre>
+<pre class="r"><code>statecoef2016 &lt;- rep(NA,11)
+
+for (i in 1:11){
+  a &lt;- subset(combinedSwingstate, combinedSwingstate$STNAME == swingstatename[i])
+  statecoef2016[i] &lt;- summary(lm(a$repratio~ a$pct_for_born15 ))$r.squared
+}
+names(statecoef2016) &lt;- swingstatename
+&quot;foreign born
+&quot;</code></pre>
+<pre><code>## [1] &quot;foreign born\n&quot;</code></pre>
+<pre class="r"><code>statecoef2016</code></pre>
+<pre><code>##       Colorado        Florida           Iowa       Michigan         Nevada 
+##     0.15194310     0.39404850     0.11610478     0.42976834     0.34394692 
+##  New Hampshire North Carolina           Ohio   Pennsylvania       Virginia 
+##     0.07778706     0.10630402     0.53335639     0.75513554     0.32331838 
+##      Wisconsin 
+##     0.18691362</code></pre>
+<pre class="r"><code>mean(statecoef2016)</code></pre>
+<pre><code>## [1] 0.3107842</code></pre>
+<pre class="r"><code>a &lt;- statecoef2016&gt;0.10
+a</code></pre>
+<pre><code>##       Colorado        Florida           Iowa       Michigan         Nevada 
+##           TRUE           TRUE           TRUE           TRUE           TRUE 
+##  New Hampshire North Carolina           Ohio   Pennsylvania       Virginia 
+##          FALSE           TRUE           TRUE           TRUE           TRUE 
+##      Wisconsin 
+##           TRUE</code></pre>
+<pre class="r"><code>for (i in 1:11){
+  a &lt;- subset(combinedSwingstate, combinedSwingstate$STNAME == swingstatename[i])
+  statecoef2016[i] &lt;- summary(lm(a$repratio~ a$pct_unemp16 ))$r.squared
+}
+names(statecoef2016) &lt;- swingstatename
+&quot;Unemployment
+&quot;</code></pre>
+<pre><code>## [1] &quot;Unemployment\n&quot;</code></pre>
+<pre class="r"><code>statecoef2016</code></pre>
+<pre><code>##       Colorado        Florida           Iowa       Michigan         Nevada 
+##    0.017539451    0.004408044    0.025725364    0.081912133    0.034929108 
+##  New Hampshire North Carolina           Ohio   Pennsylvania       Virginia 
+##    0.214963731    0.110355103    0.001093828    0.074099739    0.021445038 
+##      Wisconsin 
+##    0.001245066</code></pre>
+<pre class="r"><code>mean(statecoef2016)</code></pre>
+<pre><code>## [1] 0.05342878</code></pre>
+<pre class="r"><code>a &lt;- statecoef2016&gt;0.10
+a</code></pre>
+<pre><code>##       Colorado        Florida           Iowa       Michigan         Nevada 
+##          FALSE          FALSE          FALSE          FALSE          FALSE 
+##  New Hampshire North Carolina           Ohio   Pennsylvania       Virginia 
+##           TRUE           TRUE          FALSE          FALSE          FALSE 
+##      Wisconsin 
+##          FALSE</code></pre>
+<pre class="r"><code>for (i in 1:11){
+  a &lt;- subset(combinedSwingstate, combinedSwingstate$STNAME == swingstatename[i])
+  statecoef2016[i] &lt;- summary(lm(a$repratio~ a$elec16 ))$r.squared
+}
+names(statecoef2016) &lt;- swingstatename
+&quot;Migration
+&quot;</code></pre>
+<pre><code>## [1] &quot;Migration\n&quot;</code></pre>
+<pre class="r"><code>statecoef2016</code></pre>
+<pre><code>##       Colorado        Florida           Iowa       Michigan         Nevada 
+##   0.2296279923   0.0240150616   0.1566679945   0.0007252348   0.2199815281 
+##  New Hampshire North Carolina           Ohio   Pennsylvania       Virginia 
+##   0.1735469534   0.0204980594   0.1161212216   0.1624511026   0.0070721607 
+##      Wisconsin 
+##   0.0143963318</code></pre>
+<pre class="r"><code>mean(statecoef2016)</code></pre>
+<pre><code>## [1] 0.1022821</code></pre>
+<pre class="r"><code>a &lt;- statecoef2016&gt;0.10
+a</code></pre>
+<pre><code>##       Colorado        Florida           Iowa       Michigan         Nevada 
+##           TRUE          FALSE           TRUE          FALSE           TRUE 
+##  New Hampshire North Carolina           Ohio   Pennsylvania       Virginia 
+##           TRUE          FALSE           TRUE           TRUE          FALSE 
+##      Wisconsin 
+##          FALSE</code></pre>
+<pre class="r"><code>for (i in 1:11){
+  a &lt;- subset(combinedSwingstate, combinedSwingstate$STNAME == swingstatename[i])
+  statecoef2016[i] &lt;- summary(lm(a$repratio ~ a$`Poverty` ))$r.squared
+}
+names(statecoef2016) &lt;- swingstatename
+&quot;Poverty\n&quot;</code></pre>
+<pre><code>## [1] &quot;Poverty\n&quot;</code></pre>
+<pre class="r"><code>statecoef2016</code></pre>
+<pre><code>##       Colorado        Florida           Iowa       Michigan         Nevada 
+##   0.0289222960   0.0515936820   0.0326408685   0.0022179617   0.0104893487 
+##  New Hampshire North Carolina           Ohio   Pennsylvania       Virginia 
+##   0.0259721530   0.1462100162   0.0479373122   0.0001249644   0.0083399056 
+##      Wisconsin 
+##   0.1295351392</code></pre>
+<pre class="r"><code>mean(statecoef2016)</code></pre>
+<pre><code>## [1] 0.04399851</code></pre>
+<pre class="r"><code>a &lt;- statecoef2016&gt;0.10
+a</code></pre>
+<pre><code>##       Colorado        Florida           Iowa       Michigan         Nevada 
+##          FALSE          FALSE          FALSE          FALSE          FALSE 
+##  New Hampshire North Carolina           Ohio   Pennsylvania       Virginia 
+##          FALSE           TRUE          FALSE          FALSE          FALSE 
+##      Wisconsin 
+##           TRUE</code></pre>
+</div>
+</div>
+<div class="section level2">
+<h2>Regression results</h2>
+<div class="section level3">
+<h3>Here we are actually running the regression and show the r^2 to see how good our regressions are.</h3>
+<pre class="r"><code>regVA &lt;- lm(combinedSwingstate$repratio[combinedSwingstate$STNAME == &quot;Virginia&quot;] ~ combinedSwingstate$medAge16[combinedSwingstate$STNAME == &quot;Virginia&quot;] + combinedSwingstate$pct_bach_deg15[combinedSwingstate$STNAME == &quot;Virginia&quot;])
+summary(regVA)$r.squared</code></pre>
+<pre><code>## [1] 0.4562563</code></pre>
+<pre class="r"><code>regOH &lt;- lm(combinedSwingstate$repratio[combinedSwingstate$STNAME == &quot;Ohio&quot;] ~ combinedSwingstate$pct_non_white15[combinedSwingstate$STNAME == &quot;Ohio&quot;]+ combinedSwingstate$pct_bach_deg15[combinedSwingstate$STNAME == &quot;Ohio&quot;] + combinedSwingstate$pct_for_born15[combinedSwingstate$STNAME == &quot;Ohio&quot;] + combinedSwingstate$elec16[combinedSwingstate$STNAME == &quot;Ohio&quot;])
+summary(regOH)$r.squared</code></pre>
+<pre><code>## [1] 0.7115119</code></pre>
+<pre class="r"><code>regIA &lt;- lm(combinedSwingstate$repratio[combinedSwingstate$STNAME == &quot;Iowa&quot;] ~ combinedSwingstate$pct_non_white15[combinedSwingstate$STNAME == &quot;Iowa&quot;] + combinedSwingstate$elec16[combinedSwingstate$STNAME == &quot;Iowa&quot;] + combinedSwingstate$pct_bach_deg15[combinedSwingstate$STNAME == &quot;Iowa&quot;] + combinedSwingstate$medAge16[combinedSwingstate$STNAME == &quot;Iowa&quot;])
+summary(regIA)$r.squared</code></pre>
+<pre><code>## [1] 0.4509135</code></pre>
+<pre class="r"><code>regNC &lt;- lm(combinedSwingstate$repratio[combinedSwingstate$STNAME == &quot;North Carolina&quot;] ~ combinedSwingstate$elec16[combinedSwingstate$STNAME == &quot;North Carolina&quot;] + combinedSwingstate$pct_bach_deg15[combinedSwingstate$STNAME == &quot;North Carolina&quot;] + combinedSwingstate$medAge16[combinedSwingstate$STNAME == &quot;North Carolina&quot;] + combinedSwingstate$pct_for_born15[combinedSwingstate$STNAME == &quot;North Carolina&quot;])
+summary(regNC)$r.squared</code></pre>
+<pre><code>## [1] 0.3472574</code></pre>
+<pre class="r"><code>regNH &lt;- lm(combinedSwingstate$repratio[combinedSwingstate$STNAME == &quot;New Hampshire&quot;] ~ combinedSwingstate$pct_non_white15[combinedSwingstate$STNAME == &quot;New Hampshire&quot;] + combinedSwingstate$pct_for_born15[combinedSwingstate$STNAME == &quot;New Hampshire&quot;] + combinedSwingstate$medAge16[combinedSwingstate$STNAME == &quot;New Hampshire&quot;])
+summary(regNH)$r.squared</code></pre>
+<pre><code>## [1] 0.4636581</code></pre>
+<pre class="r"><code>regFL &lt;- lm(combinedSwingstate$repratio[combinedSwingstate$STNAME == &quot;Florida&quot;]~ combinedSwingstate$elec16[combinedSwingstate$STNAME == &quot;Florida&quot;] + combinedSwingstate$pct_bach_deg15[combinedSwingstate$STNAME == &quot;Florida&quot;] + combinedSwingstate$pct_for_born15[combinedSwingstate$STNAME == &quot;Florida&quot;] )
+summary(regFL)$r.squared</code></pre>
+<pre><code>## [1] 0.5871212</code></pre>
+<pre class="r"><code>regMI &lt;- lm(combinedSwingstate$repratio[combinedSwingstate$STNAME == &quot;Michigan&quot;] ~ combinedSwingstate$pct_non_white15[combinedSwingstate$STNAME == &quot;Michigan&quot;] + combinedSwingstate$pct_for_born15[combinedSwingstate$STNAME == &quot;Michigan&quot;] + combinedSwingstate$pct_bach_deg15[combinedSwingstate$STNAME == &quot;Michigan&quot;] + combinedSwingstate$medAge16[combinedSwingstate$STNAME == &quot;Michigan&quot;])
+summary(regMI)$r.squared</code></pre>
+<pre><code>## [1] 0.7375761</code></pre>
+<pre class="r"><code>regPA &lt;- lm(combinedSwingstate$repratio[combinedSwingstate$STNAME == &quot;Pennsylvania&quot;]~ combinedSwingstate$pct_non_white15[combinedSwingstate$STNAME == &quot;Pennsylvania&quot;] + combinedSwingstate$elec16[combinedSwingstate$STNAME == &quot;Pennsylvania&quot;] + combinedSwingstate$pct_bach_deg15[combinedSwingstate$STNAME == &quot;Pennsylvania&quot;] + combinedSwingstate$medAge16[combinedSwingstate$STNAME == &quot;Pennsylvania&quot;] + combinedSwingstate$pct_for_born15[combinedSwingstate$STNAME == &quot;Pennsylvania&quot;] + combinedSwingstate$pct_unemp16[combinedSwingstate$STNAME == &quot;Pennsylvania&quot;])
+summary(regPA)$r.squared</code></pre>
+<pre><code>## [1] 0.8897329</code></pre>
+<pre class="r"><code>regWI &lt;- lm(combinedSwingstate$repratio[combinedSwingstate$STNAME == &quot;Wisconsin&quot;]~combinedSwingstate$pct_bach_deg15[combinedSwingstate$STNAME == &quot;Wisconsin&quot;] + combinedSwingstate$medAge16[combinedSwingstate$STNAME == &quot;Wisconsin&quot;] + combinedSwingstate$pct_for_born15[combinedSwingstate$STNAME == &quot;Wisconsin&quot;])
+summary(regWI)$r.squared</code></pre>
+<pre><code>## [1] 0.3960032</code></pre>
+</div>
+</div>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" src="/d2l/common/math/MathML.js?v=20.20.8.23823-31 "></script><script type="text/javascript">document.addEventListener('DOMContentLoaded', function() { D2LMathML.DesktopInit('https://s.brightspace.com/lib/mathjax/2.7.4/MathJax.js?config=MML_HTMLorMML','https://s.brightspace.com/lib/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML','130'); });</script></body></html>
