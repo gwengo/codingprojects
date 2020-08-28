@@ -1,6 +1,4 @@
 ---
-title: "FinalExam"
-author: "Gwendolyn Goins"
 date: "12/14/2019"
 output: html_document
 ---
@@ -9,7 +7,6 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-### Final Exam
 ## Gwen Goins
 
 
@@ -430,22 +427,3 @@ ev <- ev[-c(1,8,12)]
 obj6 <- sum(ifelse(obj3 > .5,1,0)*ev)
 
 ```
-
----------------------------------
-
-# Question 3: Group Project
-
-please rate yourself and each group member (available on Brightspace) on a 0-100 point scale.
-
-Gwen (me!) - 90
-Ancher - 95
-Bing - 100
-CJ- 90
-Drew - 90
-Eric - 100
-Jalen - 90
-Jessie - 90
-Ronnie - 80
-Sarah - 85
-
-
