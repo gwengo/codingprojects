@@ -1,0 +1,349 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head></head><body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="fluid-row">
+
+
+
+<h1 class="title toc-ignore">midterm</h1>
+<h4 class="author">Gwendolyn Goins</h4>
+<h4 class="date">10/22/2019</h4>
+
+</div>
+
+
+<div class="section level1">
+<h1>Gwendolyn Goins</h1>
+<div class="section level2">
+<h2>Midterm</h2>
+<pre class="r"><code>chechen &lt;- read.csv(&quot;chechen.csv&quot;)
+dhs &lt;- read.csv(&quot;dhs_ipv.csv&quot;)</code></pre>
+<div class="section level3">
+<h3>Question 1</h3>
+<p>1.1 How many villages were and were not attacked by Russians in the dataset?</p>
+<p>In the dataset, 75 villages were attacked and 50 were not.</p>
+<pre class="r"><code>length(unique(chechen$village))</code></pre>
+<pre><code>## [1] 125</code></pre>
+<pre class="r"><code>length(unique(chechen$village[chechen$fire == 1]))</code></pre>
+<pre><code>## [1] 75</code></pre>
+<p>1.2 Create a boxplot of the distribution of deaths occuring in villages in Grozny relative to villages that are not. What do you observe?</p>
+<p>There is a higher distribution of deaths occuring in Grozny compared to other villiages; however, the non-Grozny villages have a larger range.</p>
+<pre class="r"><code>groz &lt;- subset(chechen$deaths, chechen$groznyy == 1)
+not_groz &lt;- subset(chechen$deaths, chechen$groznyy == 0)
+
+boxplot(groz, not_groz, 
+main = &quot;distribution of deaths occuring in Grozny vs not&quot;,
+at = c(1,2),
+names = c(&quot;Grozny&quot;, &quot;Not Grozny&quot;),
+las = 2,
+col = c(&quot;pink&quot;,&quot;green&quot;),
+border = &quot;black&quot;,
+horizontal = TRUE,
+las = .5
+)</code></pre>
+<pre><code>## Warning in bxp(list(stats = structure(c(2, 2.5, 3, 4, 5, 0, 0, 0, 1,
+## 2), .Dim = c(5L, : Duplicated argument las = 0.5 is disregarded</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<p>1.3 Using tapply compute the mean number of deaths occuring in villages located in Grozny as well as the mean number of deaths occuring in villages outside of Grozny.</p>
+<p>Average number in Grozny is 3.7, and outside is 1.57.</p>
+<pre class="r"><code>grozy &lt;- chechen[chechen$groznyy == 1,]
+not_grozy &lt;-chechen[chechen$groznyy == 0,]
+avg_g &lt;- tapply(grozy$deaths, grozy$fire == 1, mean)
+avg_n &lt;- tapply(not_grozy$deaths, not_grozy$fire == 1, mean)
+print(avg_g)</code></pre>
+<pre><code>##    FALSE     TRUE 
+##       NA 3.714286</code></pre>
+<pre class="r"><code>print(avg_n)</code></pre>
+<pre><code>##    FALSE     TRUE 
+##       NA 1.572368</code></pre>
+<p>1.4 Compute the difference in the mean number of deaths using the tapply object you created in the prior question.</p>
+<p>The difference is 2.14</p>
+<pre class="r"><code>avg_g[2] - avg_n[2]</code></pre>
+<pre><code>##     TRUE 
+## 2.141917</code></pre>
+<p>1.5 Now create two dataframes using the subset command: one containing villages in Grozny (Grozny.dat) and tne containing villages not in Grozny (noGrozny.dat). Print the first 6 rows to the screen to confirm that the subsetting worked correctly.</p>
+<pre class="r"><code>noGrozny.dat &lt;- subset(chechen, chechen$groznyy == 0)
+Grozny.dat &lt;- subset(chechen, chechen$groznyy == 1)
+
+head(Grozny.dat, 6)</code></pre>
+<pre><code>##                        village groznyy fire deaths preattack postattack
+## 37          Grozny (Leninskiy)       1    1      5        21         15
+## 38 Staropomyslovskiy (Groznyy)       1    0     NA        16         13
+## 57         Grozny  (Zavodskiy)       1    1      3        18         20
+## 58      Oktyabr&#39;skiy (Groznyy)       1    0     NA        14         14
+## 65 Staropomyslovskiy (Groznyy)       1    0     NA        17         20
+## 72          Grozny (Leninskiy)       1    1     10        27         22</code></pre>
+<pre class="r"><code>head(noGrozny.dat, 6)</code></pre>
+<pre><code>##        village groznyy fire deaths preattack postattack
+## 1   Elistanzhi       0    0     NA         4          3
+## 2 Malye Shuani       0    1      0         0          1
+## 3     Belgatoy       0    1     34         1          0
+## 4 Oktya&#39;brskoe       0    0     NA         0          0
+## 5   Chiri-Yurt       0    0     NA         4          5
+## 6    Gansolchu       0    1      0         0          0</code></pre>
+<p>1.6 Did Russian artillery result in a greater number of deaths in Groznyy compared to the villages outside of Groznyy? Conduct the comparison in terms of the mean and median using the new dataframes you created in Question 1.5.</p>
+<p>Yes there was more death in Groznyy compared to villages outside. We can see this when comparing the means (3.7 vs 1.6) and the medians (3 to 0).</p>
+<pre class="r"><code>mean(Grozny.dat$deaths[Grozny.dat$fire == 1])</code></pre>
+<pre><code>## [1] 3.714286</code></pre>
+<pre class="r"><code>mean(noGrozny.dat$deaths[noGrozny.dat$fire == 1])</code></pre>
+<pre><code>## [1] 1.572368</code></pre>
+<pre class="r"><code>median(Grozny.dat$deaths[Grozny.dat$fire == 1])</code></pre>
+<pre><code>## [1] 3</code></pre>
+<pre class="r"><code>median(noGrozny.dat$deaths[noGrozny.dat$fire == 1])</code></pre>
+<pre><code>## [1] 0</code></pre>
+<p>1.7 Working with the original dataframe – chechen – compare the average number of insurgent attacks for villages hit by artillery fire and to the number of insurgent attacks occuring in villages those that were not hit after Russian fire. If this is the only information you had, would you conclude that indiscriminate violence reduces insurgent attacks on the basis of this calculation? Why or why not?</p>
+<p>Villages that were fired upon did have fewer insurgent attacks than the others. This suggests that though not by much, that the firing may discourage insurgent attacks after. Though, it is important to note that the quandrant distribution for villiages that were not fired upon is much higher than that of those who experienced the attack which does not support the claim. Ultimately, I would be hesitant to conclude indiscriminate violence reduces insurgent attacks solely on the basis of this calculation.</p>
+<pre class="r"><code>insurgent_fire&lt;- mean(chechen$postattack[chechen$fire == 1])
+print(insurgent_fire)</code></pre>
+<pre><code>## [1] 1.496855</code></pre>
+<pre class="r"><code>summary(insurgent_fire)</code></pre>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##   1.497   1.497   1.497   1.497   1.497   1.497</code></pre>
+<pre class="r"><code>insurgent_no_fire &lt;- mean(chechen$postattack[chechen$fire == 0])
+print(insurgent_no_fire)</code></pre>
+<pre><code>## [1] 2.050314</code></pre>
+<pre class="r"><code>summary(insurgent_no_fire)</code></pre>
+<pre><code>##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##    2.05    2.05    2.05    2.05    2.05    2.05</code></pre>
+<pre class="r"><code>insurgent_fire - insurgent_no_fire</code></pre>
+<pre><code>## [1] -0.5534591</code></pre>
+<p>1.8 Question 1.7 looks at the difference in means, but lets look at the entire distribution of attacks. Plot the number of attacks experienced by villages that were attacked by the Russians (x-axis) against the number of attacks experienced by villages that were not attacked by the Russians (y-axis). Because villages are either attacked or not, what kind of plot do you need to conduct this comparison? What does the resulting plot show?</p>
+<p>The plot shows that between the two experiences, there is not that much differences when comparing the two.</p>
+<pre class="r"><code>p1 = hist(chechen$postattack[chechen$fire == 1], main = &quot;&quot;)</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre class="r"><code>p2 = hist(chechen$postattack[chechen$fire == 0], main = &quot;&quot;)</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre class="r"><code>plot( p1, col=rgb(0,0,1,1/4), xlim=c(0,20), main = &quot;&quot;)  # first histogram
+plot( p2, col=rgb(1,0,0,1/4), xlim=c(0,20), add=T)  # second
+
+legend(&quot;topright&quot;, legend=c(&quot;Attacked by Russians&quot;, &quot;Not Attacked by Russians&quot;),
+       col=c(&quot;pink&quot;, &quot;green&quot;), lty = 1:2, cex=0.8)</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<p>1.9 Why do we also want to compare the average number of insurgent attacks in villages that were and were not hit by Russian artillery fire BEFORE the Russian attacks occured? What do you find when you conduct this analysis? What does this mean?</p>
+<p>We want to do this in order to verify that the villages post the change were similar prior so we can evaulate the before and after state. We find that the two sets are similar prior to the Russian attacks that occured. We found the average to be similar with only a .037 mean difference. This means we can compare the two.</p>
+<pre class="r"><code>pre_fire &lt;- mean(chechen$preattack[chechen$fire == 1])
+print (pre_fire)</code></pre>
+<pre><code>## [1] 2.113208</code></pre>
+<pre class="r"><code>pre_not_fire &lt;- mean(chechen$preattack[chechen$fire == 0])
+print(pre_not_fire)</code></pre>
+<pre><code>## [1] 2.150943</code></pre>
+<pre class="r"><code>pre_fire - pre_not_fire</code></pre>
+<pre><code>## [1] -0.03773585</code></pre>
+<p>1.10 What kind of plot would allow you to compare how the number of insurgent attacks in a village compares to ohe number of attacks that occur in the same village after Russian artillery fire? Create this plot. Calculate the correlation between attacks before and after Russian fire</p>
+<p>The correlation is 0.937</p>
+<pre class="r"><code>p1 = hist(chechen$postattack[chechen$fire == 1], main = &quot;&quot;)</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre class="r"><code>p2 = hist(chechen$preattack[chechen$fire == 1], main = &quot;&quot;)</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre class="r"><code>plot( p1, col=rgb(0,0,1,1/4), xlim=c(0,30), main = &quot;&quot;, xlab = &quot;Attacks&quot;)  # first histogram
+plot( p2, col=rgb(1,0,0,1/4), xlim=c(0,30), add=T)  # second
+
+
+legend(&quot;topright&quot;, legend=c(&quot;pre&quot;, &quot;post&quot;),
+       col=c(&quot;pink&quot;, &quot;purple&quot;), lty = 1:2 )</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre class="r"><code>cor(chechen$postattack[chechen$fire == 1], chechen$preattack[chechen$fire == 1], method = c(&quot;pearson&quot;))</code></pre>
+<pre><code>## [1] 0.9370379</code></pre>
+<p>1.11 Create a new variable called diffattack by calculating the difference in the number of insurgent attacks before and after the Russian artillery fire. Create a histogram of this difference and interpret. Is this a useful plot for determining whether Russian artillery fire affected the number of insurgent attacks? Why or why Not? If not, can you create a better plot?</p>
+<p>This is not a useful plot because it is hard to easily see whether Russian artillery fire affected the number of insurgent attacks. I created a different plot such that one could see the positive vs negative difference more easily. In the new plot, you can see that for the most part, the difference is much negative overall since the trends of the graph are more discernable.</p>
+<pre class="r"><code>chechen$diffattack &lt;- chechen$postattack - chechen$preattack
+
+hist( chechen$diffattack, col=rgb(0,0,1,1/4), xlim=c(0,4.5), main = &quot;&quot;, xlab = &quot;Difference in insugent attacks before/after Russian fire&quot;)</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre class="r"><code>plot(chechen$diffattack,  main = &quot;&quot;, type = &quot;l&quot;, ylab = &quot;Difference in Insurgent attack&quot;, xlab = &quot;&quot;, ylim = c(-7,7))</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<p>1.12 Among the villages shelled by Russians, did the number of insurgent attacks increase after the artillery fires? Give a substantive interpretation of the result.Does this analysis support the claim that indiscriminate violence reduces insurgency attacks? How does this analysis compare to the analysis you conducted in question 1.7? What additional factor does this analysis addresses when compared to the analyses conducted in the previous questions</p>
+<p>No, from the villages that were fired upon, the average number attacks decreased by 0.616 when looking at the period before and after. Comparing to the previous analysis, this one supports the suggestion that insurgent attacks decrease after artillery fires.This analysis is a difference in differences. We were looking how the outcomechanges from before the fires compared to after the fires. The factor that this takes into consideration when compared to previous analyses is the assumption that had the villages not been fired upon, we would have examined the same results. This analyses allows us to conclude that the differences are a result of the Russian artillery fire by eliminating confounding variables.</p>
+<pre class="r"><code>mean(chechen$postattack[chechen$fire == 1]) - mean(chechen$preattack[chechen$fire == 1])</code></pre>
+<pre><code>## [1] -0.6163522</code></pre>
+<p>1.13 Does your conclusion depend on whether the villages are located in Grozny or not? Use the subsets you created in Question 1.5 to examine the effect of indiscriminant violence by region using whatever method of comparison you find most convincing. Justify the choice of comparison.</p>
+<p>What do you find and does this analysis make you question the conclusion you reached when answering question 1.12? Why or why not?</p>
+<p>I used the difference by difference method in order to compare the two sets and found it to be convincing since the two regions were previously found to be similar enough to compare their differences. When excluding Grozny from the analysis, we can compare the .44 to the -.515 that is examined when including Grozny in the analysis. There difference btween those nubmers is fairly large, so I believe that the conclusion does depend on whether villages are located in Grozny. The region of Grozny is different than the others as found previously, so by only looking at villages not located in Grozny, the conclusion holds.</p>
+<pre class="r"><code>noGrozny.dat$diffattack &lt;- noGrozny.dat$preattack - noGrozny.dat$postattack 
+mean(noGrozny.dat$diffattack[noGrozny.dat$fire == 1]) - mean(noGrozny.dat$diffattack[noGrozny.dat$fire == 0])</code></pre>
+<pre><code>## [1] 0.4449351</code></pre>
+<pre class="r"><code>mean(chechen$diffattack[chechen$fire == 1]) - mean(chechen$diffattack[chechen$fire == 0])</code></pre>
+<pre><code>## [1] -0.5157233</code></pre>
+</div>
+<div class="section level3">
+<h3>Question 2</h3>
+<p>2.1 Use scatterplots to examine the bivariate relationship between beat_goesout and no_media as well as between beat_goesout and sec_school. Repeat these bivariate graphs between beat_burnfood and no_media, as well as beat_burnfood and sec_school. Be sure to add informative axis labels. Briefly interpret these graphs in light of the hypothesis of the study.</p>
+<p>Based on the graphs, there seems to be a relationship in the % of women who believe domestic violence is justified (in situations of burnt food / going out) and both access to media and education. Looking with respects to the hypothesis, there does seem to be a possibliity that women with greater access to media or education are more likely to reject domestic violence.</p>
+<pre class="r"><code>plot(dhs$beat_goesout,dhs$no_media, main = &quot;domestic abuse for going out and media&quot;, xlab = &quot;% women who think is justified&quot;, ylab = &quot;% women who don&#39;t engage with media&quot;, type = &#39;p&#39;, pch = 18,col=&quot;blue&quot; )</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre class="r"><code>plot(dhs$beat_goesout,dhs$sec_school, main = &quot;domestic abuse for going out and education&quot;, xlab = &quot;% women who think is justified&quot;, ylab = &quot;% women educated to secondary school+&quot;, type = &#39;p&#39;, pch = 18,col=&quot;blue&quot; )</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre class="r"><code>plot(dhs$beat_burnfood,dhs$no_media, main = &quot;domestic abuse for burnt food and media&quot;, xlab = &quot;% women who think is justified&quot;, ylab = &quot;% women who don&#39;t engage with media&quot;, type = &#39;p&#39;, pch = 18,col=&quot;orange&quot; )</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre class="r"><code>plot(dhs$beat_burnfood,dhs$sec_school, main = &quot;domestic abuse for burnt food and education&quot;, xlab = &quot;% women who think is justified&quot;, ylab = &quot;% women educated to secondary school+&quot;, type = &#39;p&#39;, pch = 18,col=&quot;orange&quot; )</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<p>2.2 Compute the correlation coefficient between beat_burnfood and media exposure, as well as between beat_burnfood and education. What do these measures tell us about the association between education and media exposure with attitudes towards intimate partner violence?</p>
+<p>The first suggests that there is a posivite correlation between media and acceptance of domestic violence whereas the second suggests a negative correlation between education and acceptance of domestic violence. There measures suggests that exposure to media and higher education impact women’s attitudes towards intimate partner violence.</p>
+<pre class="r"><code>cor(dhs$beat_burnfood, dhs$no_media, use = c(&quot;pairwise.complete.obs&quot;))</code></pre>
+<pre><code>## [1] 0.5967618</code></pre>
+<pre class="r"><code>cor(dhs$beat_burnfood, dhs$sec_school, use = c(&quot;pairwise.complete.obs&quot;))</code></pre>
+<pre><code>## [1] -0.4760835</code></pre>
+<p>2.3 We proceed to explore the national-level differences in attitudes towards domestic violence. First, use boxplots to compare the variation in the percentege of beat_burnfood between different regions of the world using region. What are the main differences across regions in terms of the median and dispersion of the distribution? Second, using boxplots examine the distribution of no_media and sec_school by region of the world. Comment on the main differences of the distribution of these variables across regions and what they mean for the results of question 2.3.</p>
+<p>There are differences across the regions as some seem to have a higher percentage of agreement with domestic violence over those issues. There seems to be a correlation ebtween a woman’s accesss to education and media and their acceptance od domestic violence.</p>
+<pre class="r"><code>x &lt;- dhs$beat_burnfood~dhs$region
+boxplot( x, main = &quot;regional agreement with domestic abuse for burnt food&quot;, names = c(&quot;Asia&quot;, &quot;Latin America&quot;, &quot;Middle East and Central Asia&quot;, &quot;Sub-Saharan Africa&quot;), ylab = &quot;% of wives think its okay&quot;, xlab = &quot;regions of the world&quot;, col = &quot;pink&quot;)</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre class="r"><code>x_2 &lt;- dhs$sec_school~dhs$region
+boxplot( x_2, main = &quot;regional agreement with domestic abuse and women&#39;s education&quot;, names = c(&quot;Asia&quot;, &quot;Latin America&quot;, &quot;Middle East and Central Asia&quot;, &quot;Sub-Saharan Africa&quot;), ylab = &quot;% of women with secondary education+&quot;, xlab = &quot;regions of the world&quot;, col = (&quot;pink&quot;))</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<p>2.4 An important point of the researcher’s hypothesis is that the support towards intimate partner violence should decrease over time, as more women across regions have access to formal schooling and exposure to mass media. To test this idea, using time-series plots, examine the trends in beat_burnfood from 1999-2014 within each region. Label the graph and the trends appropriately. Thinking about the study design, what should we consider before trusting that this plot shows a change over time in attitudes?</p>
+<p>We should consider the way in which the data was collected. Looking at the graph, one can see that there are missing gaps in the data for Asia, as well as lookign at the amount of measurements completed by region. For example, when looking at the sumamry we see 84 measurements from SSA and only 19 from the middle east. This could suggest that all of the data recorded was not recorded equally.</p>
+<pre class="r"><code>A &lt;- subset(dhs, dhs$region == &quot;Asia&quot;)
+year_avg_A &lt;- tapply(A$beat_burnfood, A$year, mean, na.rm = T)
+  
+LA &lt;- subset(dhs, dhs$region == &quot;Latin America&quot;)
+year_avg_LA &lt;- tapply(LA$beat_burnfood, LA$year, mean, na.rm = T)
+
+ME_CA &lt;-subset(dhs, dhs$region == &quot;Middle East and Central Asia&quot;)
+year_avg_ME_CA &lt;- tapply(ME_CA$beat_burnfood, ME_CA$year, mean, na.rm = T)
+
+SSA &lt;- subset(dhs, dhs$region == &quot;Sub-Saharan Africa&quot;)
+year_avg_SSA &lt;- tapply(SSA$beat_burnfood, SSA$year, mean, na.rm = T)
+
+summary(ME_CA)</code></pre>
+<pre><code>##        X          beat_burnfood    beat_goesout     sec_school   
+##  Min.   :  1.00   Min.   : 0.30   Min.   : 3.10   Min.   :18.50  
+##  1st Qu.: 24.00   1st Qu.: 4.35   1st Qu.:17.02   1st Qu.:35.30  
+##  Median : 45.00   Median : 7.35   Median :24.80   Median :43.30  
+##  Mean   : 56.58   Mean   :12.02   Mean   :26.18   Mean   :46.37  
+##  3rd Qu.: 72.50   3rd Qu.:13.82   3rd Qu.:36.70   3rd Qu.:54.30  
+##  Max.   :154.00   Max.   :59.50   Max.   :49.50   Max.   :74.60  
+##                   NA&#39;s   :3       NA&#39;s   :3       NA&#39;s   :2      
+##     no_media                 country       year     
+##  Min.   : 1.500   Egypt          :5   Min.   :2000  
+##  1st Qu.: 2.800   Jordan         :4   1st Qu.:2003  
+##  Median : 4.750   Armenia        :3   Median :2006  
+##  Mean   : 5.844   Albania        :1   Mean   :2006  
+##  3rd Qu.: 7.200   Azerbaijan     :1   3rd Qu.:2010  
+##  Max.   :19.100   Kyrgyz Republic:1   Max.   :2014  
+##  NA&#39;s   :1        (Other)        :4                 
+##                           region  
+##  Asia                        : 0  
+##  Latin America               : 0  
+##  Middle East and Central Asia:19  
+##  Sub-Saharan Africa          : 0  
+##                                   
+##                                   
+## </code></pre>
+<pre class="r"><code>summary(SSA)</code></pre>
+<pre><code>##        X          beat_burnfood    beat_goesout     sec_school   
+##  Min.   : 11.00   Min.   : 4.50   Min.   : 5.40   Min.   : 3.10  
+##  1st Qu.: 49.75   1st Qu.:11.70   1st Qu.:26.30   1st Qu.: 7.60  
+##  Median : 91.50   Median :18.70   Median :37.70   Median :12.50  
+##  Mean   : 89.71   Mean   :20.86   Mean   :38.14   Mean   :16.85  
+##  3rd Qu.:133.25   3rd Qu.:25.65   3rd Qu.:50.50   3rd Qu.:23.00  
+##  Max.   :160.00   Max.   :64.50   Max.   :82.70   Max.   :69.10  
+##                   NA&#39;s   :17      NA&#39;s   :15      NA&#39;s   :1      
+##     no_media                    country        year     
+##  Min.   : 7.50   Uganda             : 6   Min.   :1999  
+##  1st Qu.:27.38   Tanzania           : 5   1st Qu.:2004  
+##  Median :38.75   Nigeria            : 4   Median :2008  
+##  Mean   :38.66   Senegal            : 4   Mean   :2007  
+##  3rd Qu.:47.17   Benin              : 3   3rd Qu.:2011  
+##  Max.   :86.40   Congo (Brazzaville): 3   Max.   :2014  
+##  NA&#39;s   :6       (Other)            :59                 
+##                           region  
+##  Asia                        : 0  
+##  Latin America               : 0  
+##  Middle East and Central Asia: 0  
+##  Sub-Saharan Africa          :84  
+##                                   
+##                                   
+## </code></pre>
+<pre class="r"><code>plot(names(year_avg_A), year_avg_A,  xlab = &quot;years&quot;, ylab = &quot;% agreeing with domestic violence over burnt food&quot;, xlim = c(1999, 2014), col = &quot;red&quot;, type = &quot;l&quot;, main = &quot;% wives agreeing with beating from years 1999-2014&quot;, ylim = c(-10, 75) )
+lines(names(year_avg_LA), year_avg_LA, type = &quot;l&quot;, col = &quot;blue&quot;)
+lines(names(year_avg_ME_CA), year_avg_ME_CA, type = &quot;l&quot;, col = &quot;green&quot;)
+lines(names(year_avg_SSA), year_avg_SSA, type = &quot;l&quot;, col = &quot;purple&quot;)
+
+# Add a legend to the plot
+legend(&quot;topright&quot;, legend=c(&quot;Asia&quot;, &quot;Latin America&quot;, &quot;Middle East /Central Asia&quot;, &quot;Sub-Saharan Africa&quot;),
+       col=c(&quot;red&quot;, &quot;blue&quot;, &quot;green&quot;, &quot;purple&quot;), lty = 1:2, cex=0.8)</code></pre>
+<p><img src="javascript://" width="672"/></p>
+</div>
+</div>
+</div>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" src="/d2l/common/math/MathML.js?v=20.20.8.23823-31 "></script><script type="text/javascript">document.addEventListener('DOMContentLoaded', function() { D2LMathML.DesktopInit('https://s.brightspace.com/lib/mathjax/2.7.4/MathJax.js?config=MML_HTMLorMML','https://s.brightspace.com/lib/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML','130'); });</script></body></html>
