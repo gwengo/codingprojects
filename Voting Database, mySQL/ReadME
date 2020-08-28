@@ -1,0 +1,11 @@
+The	Mecklenburg	County	Board	of	Elections maintains	a	voter	data	file for registered	voters in	Mecklenburg	county here :https://www.mecknc.gov/BOE/data/Pages/VoterDataFileDetails.aspx
+This database assumes all of the data is cleaned, and this is the schema I fit it into for later analysis.
+
+
+On the schema: 
+I took a few steps in normalization to revise the database schema. First, I looked at the way in which all of the columns were related. 
+I thought about how things fell naturally for me. For me, there seemed to be a lot of data concerning the personal information of the voter, so that seemed to be a natural way to group the columns. 
+Next, there was a lot of information concerning the voting process and how that related to the individual. What were people voting for? Those kinds of things went into that category. 
+Finally, there were 5 elections accounted for, so I made different tables for each election in order to help with those data analysis that I assume the database would be used for.
+In this way, I made a 1NF relation. Ultimately, after looking at how all of the columns were related, there was only one attribute that all of the other attributes hinged on: the voter number of the person. 
+That is the attribute that all others are dependent on, and it is the only one that has that trait. Therefore, this is a 2NF ultimately
