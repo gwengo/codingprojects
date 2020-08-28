@@ -1,0 +1,451 @@
+---
+title: "FinalExam"
+author: "Gwendolyn Goins"
+date: "12/14/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+### Final Exam
+## Gwen Goins
+
+
+# Q1
+
+1.1
+
+Are there any states with missing data? If so, for which state and which years? (You can answer by visually inspecting the data.)
+
+- Alabama is missing data in 2012
+
+```{r 1.1}
+
+# reading in election2016.csv and election2012.csv into R
+
+county_election2016 <- read.csv("election2016.csv")
+county_election2012 <- read.csv("election2012.csv")
+
+# To turn this into state level votes, use tapply by state to create a new vector called state16d to sum votes_dem_16 by state.
+state16d  <- tapply(county_election2016$votes_dem_16, county_election2016$state,sum, na.rm=TRUE)
+# Do the same to create state16r by summing votes_gop_16 ; state12r by summing votes_gop_12 ; and state12d by summing votes_dem_12.
+state16r  <- tapply(county_election2016$votes_gop_16, county_election2016$state,sum, na.rm=TRUE)
+
+state12d <- tapply(county_election2012$votes_dem_12, county_election2012$state,sum, na.rm=TRUE)
+state12r <- tapply(county_election2012$votes_gop_12, county_election2012$state,sum, na.rm=TRUE)
+
+# states with missing data? Should have all 50 + DC represented (51 rows)
+nrow(state16r)
+nrow(state12d)
+nrow(state12r)
+nrow(state16d)
+
+sum(is.na(state16r))
+sum(is.na(state12d))
+sum(is.na(state12r))
+sum(is.na(state16d))
+# all states are accounted for except...
+tapply(county_election2012$votes_total_12, county_election2012$state,sum, na.rm=TRUE)
+
+
+summary(county_election2016$state)
+summary(county_election2012$state)
+
+```
+
+
+1.2
+
+```{r 1.2, echo=TRUE}
+# Calculate the percentage of votes in each state going to the Democrat and call these new variables: pctdem12 and pctdem16.
+pctdem12 <- state12d / tapply(county_election2012$votes_total_12, county_election2012$state,sum, na.rm=TRUE)
+pctdem16 <-  state16d / tapply(county_election2016$votes_total_16, county_election2016$state,sum, na.rm=TRUE)
+
+# What is the maximum and minumum support for Democrats in each election?
+# 2012 
+max(pctdem12, na.rm=TRUE)
+min(pctdem12, na.rm=TRUE)
+# max: 91.4%
+# min:  24.9%
+
+# 2016
+max(pctdem16)
+min(pctdem16)
+# max:  92.8%
+# min: 22.5%
+
+pctdem12[1] <- pctdem16[1]
+
+#  Plot a scatterplot of these two variables against one another and compute their correlation.
+correl <- cor(pctdem16, pctdem12, method = c("pearson"))
+correl
+
+plot( pctdem16, pctdem12, col = "blue", xlim = c(0, 1), ylim =c(0, 1), ylab = "% dem in 2012", xlab = "% dem in 2016"  )
+abline( h = correl, col= "red")
+legend("bottomright", legend=c("Percentages", "Correlation"),
+       col=c("blue", "red"), lty = 1:2, cex=0.8)
+#   What do you observe and what does that imply about recent presidential elections?
+
+# the correlation is .97 which means there is a strong correlation betweenstates and their democratic voting. The plot appears to be directly proportional and almost linear. This implies that in recent presidential elections, that people are not changing which party they vote for. That if they voted democrat in 2012 then the likely voted it again in  2016 and will likely do so again in 2020. 
+```
+
+1.3
+We can also visually summmarize the distribution of percentages. Provide the code that is needed to perfectly reproduce the following figure.
+
+```{r 1.3}
+hist(pctdem16,
+main="Two Party Vote for Democrats − 2016",
+xlab="Percent Democrat Support",
+ylab = "Frequency",
+xlim=c(.2,1),
+ylim=c(0, 15),
+col="blue"
+)
+
+```
+
+1.4
+
+
+```{r 1.4}
+
+# Run a regression that predicts pctdem16 using pctdem12.
+fit <- lm(pctdem16 ~ pctdem12) # fit the model
+
+# What does the estimate of the resulting y-intercept (Intercept) imply about the relationship between the percentage of votes going to Secretary Clinton (2016 Democrat) relative to President Obama (2012 Democrat)?
+coef(fit) # get estimated coefficients
+# intercept is -0.044. This implied that relative to Obama in 2012, that the percentage of votes going to Clinton will be 4.4% less per state.
+
+
+# consider the coefficient on pctdem12 – how much is the support for Clinton in 2016 predicted to change in response to a 1 unit change in the level of Democratic support in 2012?
+summary(fit)
+# the ptcdem12 is 1.012. Support for Clinton is predicted to change immensly compared to 2012. States are expected to decrease their support by at least 1% overall. 
+
+
+```
+
+1.5
+
+```{r 1.5}
+
+# Create a new variable diff1612 that is the difference between pctdem16 and pctdem12.
+diff1612<- pctdem16 - pctdem12
+
+# Plot a well-labelled histogram of diff1612. 
+hist(diff1612,
+main="2016/2012 difference in Party Vote for Democrats",
+xlab="Percent Democrat Support",
+xlim = c(-.15, .06),
+ylab = "Frequency",
+col="pink"
+)
+
+# What is the mean and standard deviation of this new variable? 
+
+#mean
+mean.change <- mean(diff1612)
+mean.change
+
+# std
+sd.change <- sd(diff1612) 
+sd.change
+
+```
+
+1.6
+What does the following code snippet do? Describe the contents of demwin – what is the unit of observation, what are the possible values, and what do they indicate? Why is sum(demwin) meaningful?
+
+This snippet of code creates a vector full of values for each state indicating whether or not a state majority voted in support of the democratic party in 2016.  The contents of demwin are the abreviations of all of the states and a value depending whether or not the % of democratic votes in a state was greater than 50%.The unit of observation are the values previously calculted in pctdem16. The possible values are either 0 and 1, and they indicate whether of not the pctdem16 value was TRUE (value inserted was one). if not, a 0 was placed in the respective place within the vector.
+
+```{r 1.6}
+demwin <- ifelse(pctdem16 > .5,1,0)
+```
+
+1.7
+ What does the following code snippet do ? why is each line important and how does this code produce an estimate for 2020? Describe the contents of elect2020 produced by this code.
+ 
+ The following code snippet provides an estimate for % of democrat support in 2020.
+ 
+ line 1: The seed number is important because we are generating random numbers. However, we want our results to be reproducible, so we choose 42 as our the starting point.
+ line 2: This line of code takes all of the values that are missing and inserts the value 0. This is important because we cannot sample null values 
+ line 3: Randomly draws samples from diff1612, with replacement
+ line 4: Adds the % of potential change to the % of the state that voted democrat
+ 
+ Produced by the code is a vector of predicted values by state of % democratic vote based on how it changed in the past to how we can then anticipate it will continue to change in the future. 
+
+```{r 1.7}
+set.seed(42)
+diff1612[is.na(diff1612)] <- 0
+obj1 <- sample(diff1612,replace=TRUE)
+elect2020 <- pctdem16 + obj1
+
+```
+
+1.8
+ What do you think about this method of predicting the 2020 election?
+ 
+I find this method to not be very good at predicting the 2020 election. It does not account for many things assumes too much, mainly that within 8 years, political opinion will evolve consistently. It does not allow for the possibility of potentially unpredicted large social or economic events that may largely impact future political voting trends.
+```{r 1.8}
+# Use a well-labelled scatterplot summarizing the relationship between elect2020 and pctdem16.
+correl <- cor(pctdem16, elect2020, method = c("pearson"))
+correl
+plot( pctdem16, elect2020, col = "blue", xlim = c(0, 1), ylim =c(0, 1), ylab = "% dem in 2020", xlab = "% dem in 2016"  )
+abline( h = correl, col= "red")
+legend("bottomright", legend=c("Percentages", "Correlation"),
+       col=c("blue", "red"), lty = 1:2, cex=0.8)
+
+# How many states is the Democratic Candidate predicted to win in 2020 based on this prediction?
+dem2020win <- ifelse(elect2020 > .5,1,0)
+sum(dem2020win)
+
+# 10 states
+
+```
+
+1.9
+
+```{r 1.9}
+
+#  use a for loop to conduct 1000 simulations 
+n.sims <- 1000 
+HypoDemWin <- rep(NA, n.sims) # observation i in HypoDemWin is the number of states that the Democrat is predicted to win according to the ith simulation.
+for (i in 1:n.sims){
+  obj1 <- NULL
+  elect2020 <- NULL
+  obj1 <- sample(diff1612,replace=TRUE)
+  elect2020 <- pctdem16 + obj1
+  state_win <- ifelse(elect2020 > .5,1,0)
+  HypoDemWin[i] <- sum(state_win)
+}
+# Summarize the results HypoDemWin
+sum_hist <- hist(HypoDemWin, col = "pink", main="Summary", xlab = "# of states won in 2020 (predicted)", ylim = c(0, 300))
+y <- dnorm(seq(min(HypoDemWin),max(HypoDemWin),length=60),mean=mean(HypoDemWin),sd=sd(HypoDemWin))*diff(sum_hist$mids[1:2])*length(HypoDemWin)
+lines(seq(min(HypoDemWin),max(HypoDemWin),length=60), y, ,lty = 3, lwd=3, col="green" )
+legend("topright", legend=c("freq", "normal curve"),
+       col=c("pink", "green"), lty = 1:2, cex=0.8)
+
+# report the maximum and minimum number of states that the Democrat wins according to your simulations
+#max -> 15 or 16
+max(HypoDemWin)
+#min -> 7
+min(HypoDemWin)
+
+# this number changed a bit throughout the simulation, ranging from 7-15 states won. However, most of the simulations came away with 10 or 11 states winning democrat and with the # of states skewing more towards the lower end than upper, as seen by the histogram. 
+
+
+```
+
+---------------------------------
+
+# Q2
+
+2.1
+ 
+```{r 2.1}
+# Read in the data elections.csv into a new data frame called dat
+dat <- read.csv("elections.csv")
+
+# create a table of the years to see how many data points we have.
+year_table <- table(dat$year)
+summary(year_table) # 43494  data points
+
+
+#Which year has the most observations and which year has the least?
+year_table
+#Min: 1960--- 3101
+#Max: 1984,1988,1992--- 3109
+
+```
+
+2.2
+What does the figure reveal about how county-level election results since 2000 compare to earlier elections? Given that we know that both Democrats and Republicans have won since 2000, what does it mean that so many values are less than .5 post-2000?
+
+- Looking at the results post 2000, there are many more outliers above the max of the box plot. The median is also lower and more consistant. Lastly, the quantiles are generally shifting lower, but there are fewer outliers past the minimum. On the other hand, pre 2000m there seems to be more variation between elections and how people vote. This result means that democrats have been consistantly getting those votes from those counties and that large change is unlikely in recent years. 
+
+
+```{r 2.2}
+#Create a new variable in the data frame dat called pctdem that is defined by dem over (dem+rep).
+dat$pctdem <- dat$dem / (dat$dem + dat$rep)
+
+# What code produces the following figure?
+boxplot(dat$pctdem~dat$year, data=dat)
+
+```
+
+
+2.3
+
+```{r 2.3}
+# Create subsets of the data for elections occuring in: 2000, 2004, 2008, 2012 using the subset function
+election2000 <- subset(dat, dat$year == 2000)
+election2004 <- subset(dat, dat$year == 2004)
+election2008 <- subset(dat, dat$year == 2008)
+election2012 <- subset(dat, dat$year == 2012)
+# How many observations are in each of the 4 new dataframes you created?
+nrow(election2000) # 3108 observations
+nrow(election2004) # 3108 observations
+nrow(election2008) # 3108 observations
+nrow(election2012) # 3105 observations
+
+```
+
+
+2.4
+
+
+
+```{r 2.4}
+# For the newly created election2000 dataframe, use tapply to sum up the number of dem votes as well as the number of rep votes in each state
+sum_d00 <- tapply(election2000$dem, election2000$state,sum, na.rm=TRUE) 
+sum_r00 <- tapply(election2000$rep, election2000$state,sum, na.rm=TRUE) 
+
+# Use these two new variables to create a variable called pctdem00 that is the fraction of votes in the state going to the Democrat. 
+pctdem00 <- sum_d00 / (sum_d00 + sum_r00)
+
+# Repeat this for election2004 election2008 and election2012. 
+sum_d04 <- tapply(election2004$dem, election2004$state,sum, na.rm=TRUE) 
+sum_r04 <- tapply(election2004$rep, election2004$state,sum, na.rm=TRUE) 
+pctdem04 <- sum_d04 / (sum_d04 + sum_r04)
+
+sum_d08 <- tapply(election2008$dem, election2008$state,sum, na.rm=TRUE) 
+sum_r08 <- tapply(election2008$rep, election2008$state,sum, na.rm=TRUE) 
+pctdem08 <- sum_d08 / (sum_d08 + sum_r08)
+
+sum_d12 <- tapply(election2012$dem, election2012$state,sum, na.rm=TRUE)
+sum_r12 <- tapply(election2012$rep, election2012$state,sum, na.rm=TRUE) 
+pctdem12 <- sum_d12 / (sum_d12 + sum_r12)
+
+# Is there any missing data?
+sum(is.na(pctdem00)) # none!
+sum(is.na(pctdem04)) # none!
+sum(is.na(pctdem08)) # none!
+sum(is.na(pctdem12)) # none!
+
+```
+
+
+2.5
+
+The snippet of code combines and puts all of the subsets of state percentages into one large dataframe with the columns organized by year. 
+
+```{r 2.5}
+#What does the following code do?
+statedata <- cbind(pctdem00,pctdem04,pctdem08,pctdem12)
+
+# Describe the content and meaning of
+statedata[1,] # this is the % of alabama that voted democrat in the elections through 2000-2012.
+
+# Describe the content and meaning of
+statedata[,2] # this is the 2nd column, meaning the % that voted democrat in 2004 for all of the states
+
+# Describe the content and meaning of
+statedata[23,4] # this is the % of the 23rd state in the list, Missouri, that voted democrat in 2012
+```
+
+2.6
+
+
+```{r 2.6}
+
+# analyze statedata using kmeans with centers=2. 
+statedata.out <- kmeans(statedata, centers = 2, nstart = 5)
+# What do you think the two clusters would identify given this data?
+plot(statedata, col = statedata.out$cluster + 1, main = "2 clusters, statedata")
+points(statedata.out$centers, pch = 8, cex = 2)
+
+# What if you used centers=3?
+statedata.out2 <- kmeans(statedata, centers = 3, nstart = 5)
+plot(statedata, col = statedata.out2$cluster + 1, main = "3 clusters, statedata")
+points(statedata.out2$centers, pch = 8, cex = 2)
+
+# The results identify the common groups that states are in when voting democrat. The using 2 clusters, the results give us two common groups, states that around 45% or more vote blue vs states where less do so. On the other hand, when using 3 centers, 3 voting groups emerge. There are the states that are unlikely to have a majority % of democrat vote, those around 50% and those with a likely democratic landslide. 
+
+
+```
+
+2.7
+ What must you do to make sure that the meaning of the cluster labels doesn’t change between users? Using the results from each clustering analysis, interpret the meaning of the clusters you recover in each
+
+```{r 2.7}
+# to ensure that cluster label's do not change between users, we can specify the random seed. To make clusters consistent we can use  set.seed()
+
+# clustering analysis
+
+set.seed(42)
+k1 = kmeans(statedata, 5, nstart = 5)
+
+set.seed(42)
+k2 = kmeans(statedata, 5, nstart = 5)
+
+identical(k1, k2) # true
+
+set.seed(22)
+k2 = kmeans(statedata, 5, nstart = 5)
+
+identical(k1, k2) # false
+
+# by changing the seed labels will change between users. 
+
+set.seed(42)
+
+```
+
+2.8
+Imagine doing a similar exercise using earlier data (e.g., 1960 to 1976). (You are NOT being asked to do this – but you certainly easily could given the code you just wrote). What would you learn from comparing the size and composition of the clusters using 2000-2016 data to those from the 1960-1976 data?
+
+ We could learn more about how the clusters have changed over time by comparing the two. We could see how close knit the clusters are and observe how the % of democratic vote across states and which groups they fall into. Perhaps certain states have always fallen within one of the three aformentioned categories-- such inquiries can be examined by comparing the clusters with earlier data. 
+
+
+2.10
+Describe the contents of each poorly labelled object – obj1 to obj6. Your description of each object should be able to be understandable by a layperson. 
+
+obj1 - the collection of data for the percent difference of the total amount a state votes democrat from the years 2016-2000. Except, for 2016 it is missing data for AK, DC, and HI. Additionally, it is worth noting that for 2000-2004, unlike in other years where it is the latest year - the previous, in this case it is the previous - the latest. 
+obj2 - the collection of data for the percent a state voting democrat in 2016 for all but 3 states: AK, DC, HI
+obj3 - a collection of data for each state in obj2 that is the sum of the percent a state voting democrat in 2016, the additional % you can expect democratic support to increase by on average per state, and the average amount that the previous number may vary from the actual average value of our response variable mutiplied by 5.
+obj4 - This object uses the years (seq 1, 4) and for each of those, bases a regression on the % of democratic support in a state. this object is the linear model of the rows in obj1 (the % differences) as the outcome variable and the years are the predictor variable. It creates a linear model that predicts how, given past data and assuming trends will follow, the % support will continue to change. 
+obj5 - the number of states with a predicted % of support for democrat higher than 50%. 
+obj6 - this is the amount of total electoral votes that the democratic candidate recieved throuhgout the years using the estmated / predicted support using obj3
+
+
+```{r 2.10}
+
+state.diff1 <- statedata[,4] - statedata[,3] # this is the 4th column - the 3rd, meaning the % difference that voted democrat from 2012-2008
+state.diff2 <- statedata[,3] - statedata[,2] #  % difference that voted democrat from 2008-2004
+state.diff3 <- statedata[,1] - statedata[,2] #  % difference that voted democrat from 2000-2004
+obj1 <- cbind(diff1612[-c(1,8,12)],state.diff1,state.diff2,state.diff3) # negative index implies dropping element
+obj2 <- pctdem16[-c(1,8,12)]
+obj3 <- NA
+for(i in 1:length(obj2)){
+  obj4 <- lm(obj1[i,]~seq(1:4))
+  obj3[i] <- obj2[i] + coef(obj4)[1] + coef(obj4)[2]*5
+}
+obj5 <- sum(ifelse(obj3 > .5,1,0))
+# the data polls2016.csv is a dataset of poll results in each state occuring in the last two weeks of the 2016 campaign.
+polls <- read.csv(file="polls2016.csv")
+# polls$electoral_votes is the number of electoral college votes in a state 
+ev <- tapply(polls$electoral_votes, polls$state, mean) # the average number of electoral votes per state over the years
+ev <- ev[-c(1,8,12)]
+obj6 <- sum(ifelse(obj3 > .5,1,0)*ev)
+
+```
+
+---------------------------------
+
+# Question 3: Group Project
+
+please rate yourself and each group member (available on Brightspace) on a 0-100 point scale.
+
+Gwen (me!) - 90
+Ancher - 95
+Bing - 100
+CJ- 90
+Drew - 90
+Eric - 100
+Jalen - 90
+Jessie - 90
+Ronnie - 80
+Sarah - 85
+
+
