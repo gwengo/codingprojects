@@ -1,0 +1,21 @@
+Working with large amounts of data that was reported to the FEC, including data from Candidates, Campaigns, and Super PACs.
+This sorts tracks FEC donations for the upcoming presidential election into a mySQL database
+
+The final implementation is a set of connected tables which are in third-normal form. A table is in third normal form (3NF) if the attributes are atomic and depend on the key, the whole key, and nothing but the key. I created nine tables.
+While the FEC collects and publishes an absolutely massive amount of information, I believe that the following tables and attributes effectively capture the campaign finance system in an accessible way.
+
+Illustration of Functionality
+1. Candidate: basic information about Congressional and Presidential candidates. Note that Candidates must be associated with at least on Committee, as Candidates themselves cannot receive contributions.
+2. Committee: basic information about committees. These committees can receive contributions and make expenditures.
+3. Connections: This table establishes the as
+4. Party: This table is a list of the types of party codes and their full names. Both Candidates and Committees can be associated with parties, and Committees that are associated with Candidates don’t necessarily have to be from the same party as that candidate. An example of this would be Sen. Sanders from Vermont, who is supported by multiple Democratic committees, elects to run for his Senate seat as an independent in the general election.
+5. Contribution: This is a pretty big table in excess of three hundred megabytes. It includes each individual contribution made by an individual to a political committee. It is important to note that when someone donates to a candidate, they are not donating to the candidate themselves, but a committee that raises and spends on that candidate’s behalf. For example, Vice President Biden currently has a committee called “Biden for President.” This distinction between committees and candidates is important because we store them separately in our database.
+6. committee_type: This table exists simply as a factor of normalization. It provides a list of committee type codes, and their associated names and descriptions. The committee names and descriptions are wholly and exclusively dependent on the committee code.
+7. interest_organization_category: Committees can be associated with interest organizations (such as 501(c)4 political nonprofits... consider the National Rifle Association) and this table is a result of normalization, as it provides descriptions for each interest organization category.
+8. Expendature: This is also a large table in excess of 300 MB. It lists every expenditure
+9. Disbursement_Category: The FEC asks for Committees to classify their expenditures (“Disbursements”) into various categories. This table’s existence is purely because of normalization.
+
+
+
+Some of the data is messy and will need to be reformated after importing. dealing with messy and irregular data that people wrongfully inputed in. For example, Mitch McConnel incorrectly registered his org twice as two different types of organizations or any apostrophes interfered with our input code.
+This can easily be solved with a python script. 
