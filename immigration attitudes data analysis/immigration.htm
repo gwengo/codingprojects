@@ -1,0 +1,268 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head></head><body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div class="fluid-row">
+
+
+
+<h1 class="title toc-ignore">immigration</h1>
+<h4 class="author">Gwendolyn Goins</h4>
+<h4 class="date">11/15/2019</h4>
+
+</div>
+
+
+<div class="section level1">
+<h1>Gwendolyn Goins Problem Set 3</h1>
+<div class="section level2">
+<h2>Question 1</h2>
+<ol style="list-style-type: decimal;">
+<li><p>What is the proportion of people who are willing to increase the quota for high-skilled foreign professionals (h1bvis.supp) or support immigration from India (indimm.supp)? A very small proportion of people want to increase the quota for high-skilled foreign professionals. Only around 16% (10% + 6%) want this, and only around 13% (10 + 3) would support more immigration from India. Most people seem to be unlikely to support an increase in immigrants or quota.</p></li>
+<li><p>calculate the correlation coefficient of the relationship. It is 0.06864096</p></li>
+<li><p>Based on these results, what can you say about their relationship? the relationship between implicit and explicit prejudice seems to be positive looking at the linear regression line. That means that people with implicit prejudice are likely to show explicit prejudice as well. Still, the graph seems to be shifted to the lower right which may indicate that implicit prejudice levels may not be exactly proportional to the explicit ones. This may explain the small correlation coefficient.</p></li>
+</ol>
+<pre class="r"><code>immigration &lt;- read.csv(&quot;immig.csv&quot;)
+
+# examine the distribution of immigration attitudes (as factor variables). 
+immigration$attitude &lt;- factor(NA,levels=c(&quot;0&quot;, &quot;.25&quot;, &quot;.5&quot;, &quot;.75&quot;, &quot;1&quot;))
+
+
+prop.table(table(immigration$h1bvis.supp))</code></pre>
+<pre><code>## 
+##          0       0.25        0.5       0.75          1 
+## 0.30748663 0.22727273 0.29857398 0.10249554 0.06417112</code></pre>
+<pre class="r"><code>prop.table(table(immigration$indimm.supp))</code></pre>
+<pre><code>## 
+##          0       0.25        0.5       0.75          1 
+## 0.28787879 0.18092692 0.39839572 0.09982175 0.03297683</code></pre>
+<pre class="r"><code># compare the distribution of two different and distinct measures of cultural threat: explicit stereotyping about Indians (expl.prejud) and implicit bias against Indian Americans 
+# Create a welllabelled scatterplot of the relationship between these two measures, add a linear regression line to it
+plot(immigration$impl.prejud,immigration$expl.prejud, xlab = &quot;Implicit prejudice&quot;, main=&quot;Explicit vs implicit prejudice&quot;, ylab = &quot;Explicit prejudice&quot;,  type = &#39;p&#39;, pch = 1, col=&quot;green&quot;)
+regr &lt;- lm(expl.prejud ~ impl.prejud , data = immigration)
+abline(regr, col = &quot;pink&quot;,  lwd = 4)</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre class="r"><code>cor(immigration$expl.prejud, immigration$impl.prejud, use = &quot;complete.obs&quot;)</code></pre>
+<pre><code>## [1] 0.06864096</code></pre>
+</div>
+<div class="section level2">
+<h2>Question 2</h2>
+<ol style="list-style-type: decimal;">
+<li>do you agree that cultural threat is an important predictor of immigration attitudes as claimed in the literature?</li>
+</ol>
+<p>Yes. Looking at the two cultural threats, there definitely seems to be a negative relation between threats and H1B/Indian immigration. When looking at the expliviy prejudice and support for indian immigrants, it definitely seems to be backing up the clain considering it has the highest negative correlation out of all of the policy attitudes and measurements (-.32).</p>
+<ol start="2" style="list-style-type: decimal;">
+<li>If the labor market hypothesis is correct, opposition to H-1B visas should also be more pronounced among those who are economically threatened by this policy such as individuals in the high-technology sector. At the same time, tech workers should not be more or less opposed to general Indian immigration because of any economic considerations. Let’s see whether this is true. regress H-1B Visa support and Indian immigration attitudes on the indicator variable for tech workers (tech.whitcol)– Do the results support the hypothesis? Is the relationship different from the one involving cultural threat and, if so, how?</li>
+</ol>
+<p>Yes the results support the hypothesis. When compared to the amount of tech workers are less likely to support indian immigration, this amount is smaller than that of those who are against H1B Visas Tech workers are less likely to support H-1B visas (-0.05334), likely due to the economic reasons as suggested in the hypothesis. That being said, the difference is not that large, so though it supports the hypothesis, it does not prove it. There are too many other factors to consider as well.</p>
+<pre class="r"><code># compute the correlation between the four policy attitude and cultural threat measures. 
+cor(immigration[c( &quot;impl.prejud&quot;,&quot;expl.prejud&quot;, &quot;indimm.supp&quot;,  &quot;h1bvis.supp&quot; )], use = &quot;complete.obs&quot;)</code></pre>
+<pre><code>##             impl.prejud expl.prejud indimm.supp h1bvis.supp
+## impl.prejud  1.00000000  0.06864096  -0.1296632  -0.1133121
+## expl.prejud  0.06864096  1.00000000  -0.3214425  -0.1570602
+## indimm.supp -0.12966322 -0.32144247   1.0000000   0.6107116
+## h1bvis.supp -0.11331209 -0.15706018   0.6107116   1.0000000</code></pre>
+<pre class="r"><code># run two regressions with different dependent variables
+
+# H1B
+lm(h1bvis.supp ~ tech.whitcol, data = immigration)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = h1bvis.supp ~ tech.whitcol, data = immigration)
+## 
+## Coefficients:
+##  (Intercept)  tech.whitcol  
+##      0.34995      -0.05334</code></pre>
+<pre class="r"><code># Indian immigration
+lm(indimm.supp ~ tech.whitcol, data = immigration)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = indimm.supp ~ tech.whitcol, data = immigration)
+## 
+## Coefficients:
+##  (Intercept)  tech.whitcol  
+##     0.352540     -0.005082</code></pre>
+</div>
+<div class="section level2">
+<h2>Question 3</h2>
+<ol style="list-style-type: decimal;">
+<li><p>is this comparison more or less supportive of the labor market hypothesis than the one in Question 2? This comparison is more supportive. The tech group is the intercept group, and their coefficient is .297. All of the other groups have positive numbers reported for them which means that they are supported that much more. It could be suggested that the labor market hypothesis explains this.</p></li>
+<li><p>Does this change the results and, if so, how? Yes it does change the results because now the differences are larger and the differences between groups are more prominantly pronounced with other groups having much more recorded support than tech wc workers.</p></li>
+<li><p>How much of the variation in opinion is explained by the included variables according to R2 ? The R2 value is very small which means that age.gender can only be explained in about 3% of differences in opinion found among the groups.</p></li>
+<li><p>Based on the model fit, what can you conclude about the role of threat factors? From the model fit, we can conclude that we can not use it even with all those factors considered to explain H1B visa support in terms of the hypothesis from Question 2. Like the previous question, this R2 value is also very small, around 6%, meaning that age.gender, and threats can only be explained in about 6% of differences in opinion found among the groups.</p></li>
+</ol>
+<pre class="r"><code># create a single factor variable group which takes a value of tech 
+immigration$group &lt;- factor(NA,levels=c(&quot;tech&quot;, &quot;other wc&quot;, &quot;other&quot;, &quot;unemployed&quot;))
+#if someone is employed in tech, 
+immigration$group[immigration$tech.whitcol==1 &amp; immigration$nontech.whitcol==0 &amp; immigration$employed==1] &lt;- &quot;tech&quot;
+# whitecollar not tech
+immigration$group[immigration$tech.whitcol==0 &amp; immigration$nontech.whitcol==1 &amp; immigration$employed==1] &lt;- &quot;other wc&quot;
+# other if someone is employed in any other sector
+immigration$group[immigration$tech.whitcol==0 &amp; immigration$nontech.whitcol==0 &amp; immigration$employed==1] &lt;- &quot;other&quot;
+# unemployed if someone is unemployed.
+immigration$group[immigration$employed==0] &lt;- &quot;unemployed&quot;
+
+# compare the support for H-1B across these conditions by using a linear regression and this newly created factor variable group. 
+lm(h1bvis.supp ~ group, data = immigration)</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = h1bvis.supp ~ group, data = immigration)
+## 
+## Coefficients:
+##     (Intercept)    groupother wc       groupother  groupunemployed  
+##         0.29661          0.09563          0.04946          0.05217</code></pre>
+<pre class="r"><code># fit another linear regression but also include age and female as pre-treatment covariates (in addition to group). 
+lin1 &lt;- lm(h1bvis.supp ~ group + age + female, data = immigration)
+lin1</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = h1bvis.supp ~ group + age + female, data = immigration)
+## 
+## Coefficients:
+##     (Intercept)    groupother wc       groupother  groupunemployed  
+##         0.43338          0.13127          0.07598          0.08984  
+##             age           female  
+##        -0.00248         -0.07536</code></pre>
+<pre class="r"><code>summary(lin1)$r.squared</code></pre>
+<pre><code>## [1] 0.02889496</code></pre>
+<pre class="r"><code># fit a linear regression model with all threat indicators (group, expl.prejud, impl.prejud) in addition to age and female and calculate its R2 
+lin2 &lt;- lm(h1bvis.supp ~ group + impl.prejud + expl.prejud + age + female, data = immigration)
+lin2</code></pre>
+<pre><code>## 
+## Call:
+## lm(formula = h1bvis.supp ~ group + impl.prejud + expl.prejud + 
+##     age + female, data = immigration)
+## 
+## Coefficients:
+##     (Intercept)    groupother wc       groupother  groupunemployed  
+##        0.597184         0.150170         0.081823         0.085685  
+##     impl.prejud      expl.prejud              age           female  
+##       -0.164364        -0.281642        -0.001721        -0.086532</code></pre>
+<pre class="r"><code>summary(lin2)$r.squared</code></pre>
+<pre><code>## [1] 0.06168942</code></pre>
+</div>
+<div class="section level2">
+<h2>Question 4</h2>
+<ol style="list-style-type: decimal;">
+<li>Would you agree that gender alters the relationship between cultural threat and immigration attitudes?</li>
+</ol>
+<p>I would agree that gender impacts one’s support for H1B visas support when looksed at with cultural threat. There is a clear difference between men and women with women being seemingly less likely to change their support based on implicit prejudices. As we can see, the line for men changes much more than women, so the most difference would be seen between men and women with less implicit prejudices.</p>
+<ol start="2" style="list-style-type: decimal;">
+<li>Would you say that people become more opposed to immigration with age?</li>
+</ol>
+<p>With age, my graph is not showing any sort of correlation between immigration and age.</p>
+<pre class="r"><code># fit a linear regression of H-1B support on the interaction between gender and implicit prejudice.
+fit2 &lt;- lm(h1bvis.supp ~ impl.prejud + female + impl.prejud*female, data = immigration)
+# create a plot with the predicted level of H-1B support (y-axis) across the range of implicit bias (x-axis) by gender. 
+x_value &lt;- seq(from = 0, to = 1, by = .01)
+
+women &lt;- data.frame(impl.prejud = x_value, female = 1)
+predict_women &lt;- predict(fit2, newdata = women)
+
+men &lt;- data.frame(impl.prejud = x_value, female = 0)
+predict_men &lt;- predict(fit2, newdata = men)
+
+plot(x = x_value,  ylim = c(0, .8), main= &quot;predicted level of H-1B support by gender&quot;, y = predict_men, type = &quot;l&quot;, xlim = c(0, 1), ylab = &quot;predicted H1B support&quot;, col = &quot;pink&quot;,  xlab = &quot;implicit prejudice&quot;)
+lines(x = x_value, y = predict_women, col = &quot;green&quot;) 
+legend(&quot;topleft&quot;, legend=c(&quot;Male&quot;, &quot;Female&quot;), col=c(&quot;pink&quot;, &quot;green&quot;), lty = 1:2, cex=0.8)</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre class="r"><code># Now with age
+
+# fit two regression models in which H-1B support is either a linear or quadratic function of age
+
+fit3 &lt;- lm(h1bvis.supp ~ immigration$age + immigration$age, data = immigration)
+fit4 &lt;- lm(h1bvis.supp ~ immigration$age + immigration$age*immigration$age, data = immigration)
+
+# Compare the results by plotting the predicted levels of support (y-axis) across the whole age range (x-axis).
+x_values &lt;- seq(from = 18, to = 80, by = 1)
+lin &lt;- data.frame(fit3 = x_values)
+quad &lt;- data.frame(fit4 = x_values)
+predict_lin &lt;- predict(fit3, newdata = lin)</code></pre>
+<pre><code>## Warning: &#39;newdata&#39; had 63 rows but variables found have 1133 rows</code></pre>
+<pre class="r"><code>predict_quad &lt;- predict(fit4, newdata = quad)</code></pre>
+<pre><code>## Warning: &#39;newdata&#39; had 63 rows but variables found have 1133 rows</code></pre>
+<pre class="r"><code>plot(x = names(predict_lin),   main= &quot;predicted level of H-1B support by age&quot;, y = predict_lin, type = &quot;l&quot;, xlim = c(18, 90), ylab = &quot;predicted H1B support&quot;, col = &quot;pink&quot;,  xlab = &quot;age&quot;)
+lines(x = names(predict_quad), y = predict_quad, col = &quot;green&quot;) 
+legend(&quot;topleft&quot;, legend=c(&quot;linear&quot;, &quot;quadratic&quot;), col=c(&quot;pink&quot;, &quot;green&quot;), lty = 1:2, cex=0.8)</code></pre>
+<p><img src="javascript://" width="672"/></p>
+</div>
+</div>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script type="text/javascript" src="/d2l/common/math/MathML.js?v=20.20.8.23823-31 "></script><script type="text/javascript">document.addEventListener('DOMContentLoaded', function() { D2LMathML.DesktopInit('https://s.brightspace.com/lib/mathjax/2.7.4/MathJax.js?config=MML_HTMLorMML','https://s.brightspace.com/lib/mathjax/2.7.4/MathJax.js?config=TeX-AMS-MML_HTMLorMML','130'); });</script></body></html>

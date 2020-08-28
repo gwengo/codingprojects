@@ -1,0 +1,161 @@
+---
+title: "immigration"
+author: "Gwendolyn Goins"
+date: "11/15/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Gwendolyn Goins Problem Set 3
+
+
+## Question 1
+1. What is the proportion of people who are willing to increase the quota for high-skilled foreign professionals (h1bvis.supp) or support immigration from India (indimm.supp)? 
+A very small proportion of people want to increase the quota for high-skilled foreign professionals. Only around 16% (10% + 6%) want this, and only around 13% (10 + 3) would support more immigration from India. Most people seem to be unlikely to support an increase in immigrants or quota.
+
+2. calculate the correlation coefficient of the relationship. 
+It is 0.06864096
+
+5. Based on these results, what can you say about their relationship?
+the relationship between implicit and explicit prejudice seems to be positive looking at the linear regression line. That means that people with implicit prejudice are likely to show explicit prejudice as well. Still, the graph seems to be shifted to the lower right which may indicate that implicit prejudice levels may not be exactly proportional to the explicit ones. This may explain the small correlation coefficient.
+
+```{r Q1}
+immigration <- read.csv("immig.csv")
+
+# examine the distribution of immigration attitudes (as factor variables). 
+immigration$attitude <- factor(NA,levels=c("0", ".25", ".5", ".75", "1"))
+
+
+prop.table(table(immigration$h1bvis.supp))
+prop.table(table(immigration$indimm.supp))
+
+# compare the distribution of two different and distinct measures of cultural threat: explicit stereotyping about Indians (expl.prejud) and implicit bias against Indian Americans 
+# Create a welllabelled scatterplot of the relationship between these two measures, add a linear regression line to it
+plot(immigration$impl.prejud,immigration$expl.prejud, xlab = "Implicit prejudice", main="Explicit vs implicit prejudice", ylab = "Explicit prejudice",  type = 'p', pch = 1, col="green")
+regr <- lm(expl.prejud ~ impl.prejud , data = immigration)
+abline(regr, col = "pink",  lwd = 4)
+       
+cor(immigration$expl.prejud, immigration$impl.prejud, use = "complete.obs")
+
+```
+
+## Question 2
+
+ 
+1. do you agree that cultural threat is an important predictor of immigration attitudes as claimed in the literature? 
+ 
+ Yes. Looking at the two cultural threats, there definitely seems to be a negative relation between threats and H1B/Indian immigration. When looking at the expliviy prejudice and support for indian immigrants, it definitely seems to be backing up the clain considering it has the highest negative correlation out of all of the policy attitudes and measurements (-.32).
+ 
+2. If the labor market hypothesis is correct, opposition to H-1B visas should also be more pronounced among those who are economically threatened by this policy such as individuals in the high-technology sector. At the same time, tech workers should not be more or less opposed to general Indian immigration because of any economic considerations. Let’s see whether this is true. regress H-1B Visa support and Indian immigration attitudes on the indicator variable for tech workers (tech.whitcol)-- Do the results support the hypothesis? Is the relationship different from the one involving cultural threat and, if so, how? 
+
+Yes the results support the hypothesis. When compared to the amount of tech workers are less likely to support indian immigration, this amount is smaller than that of those who are against H1B Visas Tech workers are less likely to support H-1B visas (-0.05334), likely due to the economic reasons as suggested in the hypothesis. That being said, the difference is not that large, so though it supports the hypothesis, it does not prove it. There are too many other factors to consider as well.
+
+```{r Q2}
+
+# compute the correlation between the four policy attitude and cultural threat measures. 
+cor(immigration[c( "impl.prejud","expl.prejud", "indimm.supp",  "h1bvis.supp" )], use = "complete.obs")
+
+# run two regressions with different dependent variables
+
+# H1B
+lm(h1bvis.supp ~ tech.whitcol, data = immigration)
+
+# Indian immigration
+lm(indimm.supp ~ tech.whitcol, data = immigration)
+
+
+```
+
+
+## Question 3
+
+
+1. is this comparison more or less supportive of the labor market hypothesis than the one in Question 2? 
+This comparison is more supportive. The tech group is the intercept group, and their coefficient is .297. All of the other groups have positive numbers reported for them which means that they are supported that much more. It could be suggested that the labor market hypothesis explains this. 
+
+2. Does this change the results and, if so, how? 
+Yes it does change the results because now the differences are larger and the differences between groups are more prominantly pronounced with other groups having much more recorded support than tech wc workers.
+
+3. How much of the variation in opinion is explained by the included variables according to R2 ? 
+The R2 value is very small which means that age.gender can only be explained in about 3% of differences in opinion found among the groups. 
+
+4. Based on the model fit, what can you conclude about the role of threat factors?
+From the model fit, we can conclude  that we can not use it even with all those factors considered to explain H1B visa support in terms of the hypothesis from Question 2. Like the previous question, this R2 value is also very small, around 6%, meaning that age.gender, and threats can only be explained in about 6% of differences in opinion found among the groups. 
+
+```{r Q3}
+
+# create a single factor variable group which takes a value of tech 
+immigration$group <- factor(NA,levels=c("tech", "other wc", "other", "unemployed"))
+#if someone is employed in tech, 
+immigration$group[immigration$tech.whitcol==1 & immigration$nontech.whitcol==0 & immigration$employed==1] <- "tech"
+# whitecollar not tech
+immigration$group[immigration$tech.whitcol==0 & immigration$nontech.whitcol==1 & immigration$employed==1] <- "other wc"
+# other if someone is employed in any other sector
+immigration$group[immigration$tech.whitcol==0 & immigration$nontech.whitcol==0 & immigration$employed==1] <- "other"
+# unemployed if someone is unemployed.
+immigration$group[immigration$employed==0] <- "unemployed"
+
+# compare the support for H-1B across these conditions by using a linear regression and this newly created factor variable group. 
+lm(h1bvis.supp ~ group, data = immigration)
+
+# fit another linear regression but also include age and female as pre-treatment covariates (in addition to group). 
+lin1 <- lm(h1bvis.supp ~ group + age + female, data = immigration)
+lin1
+summary(lin1)$r.squared
+# fit a linear regression model with all threat indicators (group, expl.prejud, impl.prejud) in addition to age and female and calculate its R2 
+lin2 <- lm(h1bvis.supp ~ group + impl.prejud + expl.prejud + age + female, data = immigration)
+lin2
+summary(lin2)$r.squared
+
+
+```
+
+## Question 4
+
+1. Would you agree that gender alters the relationship between cultural threat and immigration attitudes?
+
+I would agree that gender impacts one's support for H1B visas support when looksed at with cultural threat. There is a clear difference between men and women with women being seemingly less likely to change their support based on implicit prejudices. As we can see, the line for men changes much more than women, so the most difference would be seen between men and women with less implicit prejudices.
+
+2. Would you say that people become more opposed to immigration with age?
+
+With age, my graph is not showing any sort of correlation between immigration and age. 
+
+```{r Q4}
+
+# fit a linear regression of H-1B support on the interaction between gender and implicit prejudice.
+fit2 <- lm(h1bvis.supp ~ impl.prejud + female + impl.prejud*female, data = immigration)
+# create a plot with the predicted level of H-1B support (y-axis) across the range of implicit bias (x-axis) by gender. 
+x_value <- seq(from = 0, to = 1, by = .01)
+
+women <- data.frame(impl.prejud = x_value, female = 1)
+predict_women <- predict(fit2, newdata = women)
+
+men <- data.frame(impl.prejud = x_value, female = 0)
+predict_men <- predict(fit2, newdata = men)
+
+plot(x = x_value,  ylim = c(0, .8), main= "predicted level of H-1B support by gender", y = predict_men, type = "l", xlim = c(0, 1), ylab = "predicted H1B support", col = "pink",  xlab = "implicit prejudice")
+lines(x = x_value, y = predict_women, col = "green") 
+legend("topleft", legend=c("Male", "Female"), col=c("pink", "green"), lty = 1:2, cex=0.8)
+
+# Now with age
+
+# fit two regression models in which H-1B support is either a linear or quadratic function of age
+
+fit3 <- lm(h1bvis.supp ~ immigration$age + immigration$age, data = immigration)
+fit4 <- lm(h1bvis.supp ~ immigration$age + immigration$age*immigration$age, data = immigration)
+
+# Compare the results by plotting the predicted levels of support (y-axis) across the whole age range (x-axis).
+x_values <- seq(from = 18, to = 80, by = 1)
+lin <- data.frame(fit3 = x_values)
+quad <- data.frame(fit4 = x_values)
+predict_lin <- predict(fit3, newdata = lin)
+predict_quad <- predict(fit4, newdata = quad)
+plot(x = names(predict_lin),   main= "predicted level of H-1B support by age", y = predict_lin, type = "l", xlim = c(18, 90), ylab = "predicted H1B support", col = "pink",  xlab = "age")
+lines(x = names(predict_quad), y = predict_quad, col = "green") 
+legend("topleft", legend=c("linear", "quadratic"), col=c("pink", "green"), lty = 1:2, cex=0.8)
+
+```
+
