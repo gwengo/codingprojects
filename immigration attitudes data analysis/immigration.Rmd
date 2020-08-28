@@ -9,7 +9,6 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-# Gwendolyn Goins Problem Set 3
 
 
 ## Question 1
