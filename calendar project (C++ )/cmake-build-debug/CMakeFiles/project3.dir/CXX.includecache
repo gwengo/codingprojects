@@ -1,0 +1,42 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/gwengoins/Downloads/project3 2/Calendar.cpp
+string
+-
+stdexcept
+-
+cassert
+-
+Calendar.h
+/Users/gwengoins/Downloads/project3 2/Calendar.h
+
+/Users/gwengoins/Downloads/project3 2/Calendar.h
+Date.h
+/Users/gwengoins/Downloads/project3 2/Date.h
+Reminder.h
+/Users/gwengoins/Downloads/project3 2/Reminder.h
+RemNode.h
+/Users/gwengoins/Downloads/project3 2/RemNode.h
+
+/Users/gwengoins/Downloads/project3 2/Date.h
+string
+-
+iostream
+-
+
+/Users/gwengoins/Downloads/project3 2/RemNode.h
+Reminder.h
+/Users/gwengoins/Downloads/project3 2/Reminder.h
+
+/Users/gwengoins/Downloads/project3 2/Reminder.h
+Date.h
+/Users/gwengoins/Downloads/project3 2/Date.h
+string
+-
+

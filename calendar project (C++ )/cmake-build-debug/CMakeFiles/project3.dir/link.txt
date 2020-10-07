@@ -1,0 +1,1 @@
+/usr/bin/clang++   -std=c++17 -Wall -Werror -Wextra -pedantic -pedantic-errors -D_GLIBCXX_DEBUG -g -Wl,-search_paths_first -Wl,-headerpad_max_install_names  CMakeFiles/project3.dir/Calendar.cpp.o CMakeFiles/project3.dir/CalTest.cpp.o CMakeFiles/project3.dir/Date.cpp.o CMakeFiles/project3.dir/Reminder.cpp.o  -o project3 
