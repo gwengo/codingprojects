@@ -1,0 +1,62 @@
+Background
+
+There are 500,000 people in Florida who are eligible for the Supplemental Nutrition
+Assistance Program (SNAP) benefits but do not utilize them.
+
+In the following exercise, you will analyze a random sample of the Floridians on
+SNAP to identify trends in populations that are potentially underrepresented,
+synthesize user quotes for key leverage points/insights, and develop target
+interventions for those who are not utilizing SNAP.
+Underrepresented populations are those that make up a smaller percentage of
+SNAP recipients than their proportional representation with the Floridian population
+that qualifies for SNAP. Assume that the demography of the Florida population is
+similar to that of the Florida population that qualifies for SNAP (with the exception of
+educational attainment).
+
+
+Part 1 - Clean and Analyze the Data
+A. Attached is a CSV, composed of data on randomly selected Floridians that
+receive SNAP. Please provide a short description of the contents of the dataset
+and some of the fields that you predict will be important for your analysis.
+
+B. Please provide some visualizations of the data and describe any insights that
+can be drawn in terms of the population breakdown of the Floridians on food
+stamps. In what ways did you have to clean the data?
+
+C. Which populations may be underrepresented in the provided data? For your
+reference, here are some specifics about the population of Florida (feel free to
+find others and list your assumptions/references):
+a. Language
+b. Race and household size
+c. Population by County
+
+
+Part 2 - Synthesis of User Pain Points
+Please use the following user quotes to provide analysis of some of the pain points
+that may be preventing people from receiving SNAP. Feel free to communicate your
+findings in bullets or paragraph form.
+
+User quotes:
+1. “I received a raise last year so based on what I saw a few years ago I am no
+longer eligible.”
+2. “My father is a libertarian so does not believe in government hand-outs.”
+3. “The last I heard people on social security are not eligible for food stamps
+because we exceed the maximum pay.”
+4. “My grandmother does not have much familiarity with technology and is not
+able to apply in person right now due to COVID-19.”
+5. “I receive decent pay as a nurse but it does not stretch far given I have seven
+kids.”
+6. “My son doesn’t have time to apply for me.”
+7. “What is SNAP? I don’t think I’ve heard of it before. Maybe a different name?”
+8. “It’s been 4 months since I applied, and I tried re-submitting my documents 3
+times. They keep saying that my documents are incorrect, but why?”
+
+Part 3 - Other Data Required
+Please identify other data you would like to analyze to identify key leverage points to
+enable more Floridians to receive SNAP.
+
+Part 4 - Propose a Hypothesis
+Please propose a hypothesis of why one population is systematically
+underrepresented in those receiving SNAP benefits given your analysis of user
+quotes and data. What are the key parts of your hypothesis that you must test and
+what metrics would indicate your hypothesis is correct?
